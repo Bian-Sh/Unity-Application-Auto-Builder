@@ -1,0 +1,28 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a60e37a9482c0b94e80647dc2c0222c7, type: 3}
+  m_Name: AutoBuildConfiguration
+  m_EditorClassIdentifier: 
+  targetPlatform: 5
+  appLocationPath: E:/Unity/Temp/AppLocation
+  profiles:
+    array:
+    - productName: "\u7B2C\u4E00\u4E2A\u5E94\u7528"
+      productVersion: 1.0.0
+      isBuild: 1
+      buildOptions: 6
+      scenes:
+        array:
+        - scene: {fileID: 102900000, guid: b3bb2599e998b664c973acd74cf1ae3b, type: 3}
+          enabled: 1
+        - scene: {fileID: 102900000, guid: 2d11479ebd414b046b565beea84aaaa8, type: 3}
+          enabled: 1

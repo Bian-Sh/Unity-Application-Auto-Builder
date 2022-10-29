@@ -1,0 +1,16 @@
+{
+    "name": "com.bshsf.appautobuilder",
+    "references": [
+        "Malee.ReorderableList"
+    ],
+    "optionalUnityReferences": [],
+    "includePlatforms": [
+        "Editor"
+    ],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": []
+}

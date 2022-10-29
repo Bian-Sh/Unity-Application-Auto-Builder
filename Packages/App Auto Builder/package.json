@@ -1,0 +1,14 @@
+{
+    "name": "com.bshsf.appautobuilder",
+    "author": "bian shanghai",
+    "displayName": "App Auto Builder",
+    "version": "1.0.0",
+    "unity": "2018.4.8",
+  "keywords": [
+    "unity",
+    "editor",
+    "auto",
+    "build app"
+  ],
+  "description": "Editor extension for build application automatically, config once and build to many apps at a time with one key, and you can combine any scene as you wish."
+}
