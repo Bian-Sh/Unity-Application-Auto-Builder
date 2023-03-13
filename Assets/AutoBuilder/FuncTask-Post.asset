@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 52e9e45d9227c494c932e29b162b0a3b, type: 3}
+  m_Name: FuncTask-Post
+  m_EditorClassIdentifier: 
+  taskType: 1
+  priority: 0
+  isEnable: 1
+  scene: {fileID: 102900000, guid: b3bb2599e998b664c973acd74cf1ae3b, type: 3}
+  script: {fileID: 11500000, guid: 740810d97dcafcb40af5e2b91bf8be5b, type: 3}
+  function: SomeFunction
+  args: FromCustomTask-Post

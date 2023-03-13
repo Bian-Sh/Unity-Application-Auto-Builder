@@ -500,7 +500,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 740810d97dcafcb40af5e2b91bf8be5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  platform: FromCustomTask
+  platform: FromCustomTask-Post
 --- !u!4 &1731367579
 Transform:
   m_ObjectHideFlags: 0

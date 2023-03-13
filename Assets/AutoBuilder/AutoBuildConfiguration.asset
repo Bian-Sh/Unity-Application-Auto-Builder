@@ -28,3 +28,4 @@ MonoBehaviour:
           enabled: 1
       customTask:
       - {fileID: 11400000, guid: 34f373d074091ea41ae45b3844a0df13, type: 2}
+      - {fileID: 11400000, guid: 7194155011d21f44ebc236f361060d64, type: 2}
