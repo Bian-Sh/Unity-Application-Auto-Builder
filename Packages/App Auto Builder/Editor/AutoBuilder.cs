@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
+using UnityEditor.Callbacks;
 using UnityEngine;
 namespace zFramework.Extension
 {
@@ -107,6 +108,20 @@ namespace zFramework.Extension
             {
                 if (profile.isBuild)
                 {
+                    var tasks = profile.customTask.Where(v => v.taskType == TaskType.PreBuild)
+                         .OrderBy(v => v.priority);
+                    foreach (var item in tasks)
+                    {
+                        if (item)
+                        {
+                            item.Run();
+                        }
+                        else
+                        {
+                            Debug.LogError($"{nameof(AutoBuilder)}: Custom Task is Missing!");
+                        }
+                    }
+
                     var scenes = new List<EditorBuildSettingsScene>();
                     foreach (var scene in profile.scenes)
                     {
@@ -130,15 +145,46 @@ namespace zFramework.Extension
                     var dir = $"{config.appLocationPath}/{profile.productName}";
                     var file = $"{dir}/{profile.productName}.exe";
                     PlayerSettings.productName = profile.productName;
-                    PlayerSettings.bundleVersion= profile.productVersion;
+                    PlayerSettings.bundleVersion = profile.productVersion;
                     var report = BuildPipeline.BuildPlayer(scenes.ToArray(), file, config.targetPlatform, options_unity);
-                     Debug.Log($"{profile.productName} 打包结果：{report.summary.result}");
+                    Debug.Log($"{profile.productName} 打包结果：{report.summary.result}");
                 }
             }
             Debug.Log($" 打包结束，可通过控制台确认所有打包结果");
         }
+
+        #region Callbacks 
+        [PostProcessBuild]
+        static void OnPostProcessBuild(BuildTarget target, string output)
+        {
+            config ??= AutoBuildConfiguration.LoadOrCreate();
+            var productname = Path.GetFileNameWithoutExtension(output);
+            var profile = config.profiles.FirstOrDefault(v => v.productName == productname);
+            if (null != profile)
+            {
+                var tasks = profile.customTask.Where(v => v.taskType == TaskType.PostBuild)
+                     .OrderBy(v => v.priority);
+                foreach (var item in tasks)
+                {
+                    if (item)
+                    {
+                        item.Run();
+                    }
+                    else
+                    {
+                        Debug.LogError($"{nameof(AutoBuilder)}: Custom Task is Missing!");
+                    }
+                }
+            }
+            else
+            {
+            Debug.LogError($"{nameof(AutoBuilder)}:  找不到 {output} 的配置\nproductName = {productname}");
+            }
+        }
+        #endregion
+
         #region Private Fields
-        AutoBuildConfiguration config;
+        static AutoBuildConfiguration config;
         GUIContent build_content = new GUIContent("打包", "点击将按上述配置依次进行打包！");
         GUIContent op_content = new GUIContent("打包结束，请确认是否打包成功！");
         SerializedObject serializedObject;

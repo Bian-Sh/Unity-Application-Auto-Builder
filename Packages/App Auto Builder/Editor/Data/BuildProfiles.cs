@@ -1,5 +1,6 @@
 ﻿using Malee.List;
 using System;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 namespace zFramework.Extension
@@ -17,5 +18,7 @@ namespace zFramework.Extension
         public BuildOptionsLit buildOptions;
         [Header("场景列表：不勾选不打包，注意排序"), Reorderable(sortable = false, surrogateType = typeof(SceneAsset), surrogateProperty = "scene")]
         public SceneInfoArray scenes;
+        [Header("用户自定义任务")]
+        public List<BaseTask> customTask;
     }
 }
