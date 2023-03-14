@@ -1,4 +1,4 @@
-﻿using Malee.List;
+﻿using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
 using UnityEngine;
@@ -10,8 +10,8 @@ namespace zFramework.Extension
         public BuildTarget targetPlatform = BuildTarget.StandaloneWindows;
         [OpenFolder, Header("打包保存路径")]
         public string appLocationPath;
-        [Reorderable(sortable = false), Header("软件出包配置")]
-        public BuildProfilesArray profiles;
+        [Header("软件出包配置")]
+        public List<BuildProfiles> profiles;
         public static AutoBuildConfiguration LoadOrCreate()
         {
             var file = "Assets/AutoBuilder/AutoBuildConfiguration.asset";

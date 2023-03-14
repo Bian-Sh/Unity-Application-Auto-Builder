@@ -6,12 +6,6 @@
       "source": "embedded",
       "dependencies": {}
     },
-    "com.malee.reorderablelist": {
-      "version": "file:Unity-Reorderable-List",
-      "depth": 0,
-      "source": "embedded",
-      "dependencies": {}
-    },
     "com.unity.collab-proxy": {
       "version": "1.17.2",
       "depth": 0,
