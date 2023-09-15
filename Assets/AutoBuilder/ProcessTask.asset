@@ -9,13 +9,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 52e9e45d9227c494c932e29b162b0a3b, type: 3}
-  m_Name: FuncTask
+  m_Script: {fileID: 11500000, guid: d0ec0664d7c21aa4a93c627af6f4e3f0, type: 3}
+  m_Name: ProcessTask
   m_EditorClassIdentifier: 
   taskType: 0
   priority: 0
-  isEnable: 1
-  scene: {fileID: 102900000, guid: b3bb2599e998b664c973acd74cf1ae3b, type: 3}
-  script: {fileID: 11500000, guid: 740810d97dcafcb40af5e2b91bf8be5b, type: 3}
-  function: SomeFunction
-  args: FromCustomTask
+  exePath: cmd
+  args: 
+  waitForExit: 1
