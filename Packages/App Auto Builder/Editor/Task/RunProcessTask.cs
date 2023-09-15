@@ -1,18 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
-public class RunProcessTask : MonoBehaviour
+//add a task to run a process, it is a simple task to run a process,without io redirect
+//添加一个任务来运行一个进程, 这是一个简单的任务来运行一个进程，不带io重定向
+[CreateAssetMenu(fileName = "ProcessTask", menuName = "Auto Builder/Task/Process Task")]
+public class RunProcessTask : BaseTask
 {
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public string exePath;
+    public string args;
+    public bool waitForExit;
 
-    // Update is called once per frame
-    void Update()
+    private void OnEnable()
     {
-        
+        Description = "在打包前后执行程序方便处理一些事务，应该会有用吧";
+    }
+    public override void Run()
+    {
+        if (!string.IsNullOrEmpty(exePath))
+        {
+            Debug.Log($"{nameof(RunProcessTask)}: Run Process");
+            var process = System.Diagnostics.Process.Start(exePath, args);
+            if (waitForExit)
+            {
+                process.WaitForExit();
+            }
+        }
     }
 }
