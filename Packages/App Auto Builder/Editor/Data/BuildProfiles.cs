@@ -18,7 +18,7 @@ namespace zFramework.Extension
 		[Header("场景列表：不勾选不打包，注意排序")]
         public List<SceneInfo> scenes;
         [Header("用户自定义任务")]
-        public List<BaseTask> customTask;
+        public List<TaskInfo> customTask;
 
     }
 }

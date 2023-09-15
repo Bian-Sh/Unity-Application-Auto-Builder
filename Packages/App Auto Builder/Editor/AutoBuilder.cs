@@ -108,7 +108,9 @@ namespace zFramework.Extension
             {
                 if (profile.isBuild)
                 {
-                    var tasks = profile.customTask.Where(v => v.taskType == TaskType.PreBuild&& v.isEnable)
+                    var tasks = profile.customTask.Where(v => v.enabled)
+                        .Select(v => v.task)
+                        .Where(v => v.taskType == TaskType.PreBuild)
                          .OrderBy(v => v.priority);
                     foreach (var item in tasks)
                     {
@@ -169,7 +171,9 @@ namespace zFramework.Extension
             var profile = config.profiles.FirstOrDefault(v => v.productName == productname);
             if (null != profile)
             {
-                var tasks = profile.customTask.Where(v => v.taskType == TaskType.PostBuild)
+                var tasks = profile.customTask.Where(v => v.enabled)
+                    .Select(v => v.task)
+                    .Where(v => v.taskType == TaskType.PostBuild)
                      .OrderBy(v => v.priority);
                 foreach (var item in tasks)
                 {
@@ -185,7 +189,7 @@ namespace zFramework.Extension
             }
             else
             {
-            Debug.LogError($"{nameof(AutoBuilder)}:  找不到 {output} 的配置\nproductName = {productname}");
+                Debug.LogError($"{nameof(AutoBuilder)}:  找不到 {output} 的配置\nproductName = {productname}");
             }
         }
         #endregion
