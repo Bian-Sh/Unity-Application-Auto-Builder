@@ -29,7 +29,6 @@ public class RunFunctionTask : BaseTask
         // Invoke the method
         method.Invoke(instance, new object[] { args });
         EditorSceneManager.SaveScene(loadedScene);
-        EditorSceneManager.CloseScene(loadedScene, true);
         // Re-open previours scenes
         EditorSceneManager.RestoreSceneManagerSetup(previourScenes);
     }

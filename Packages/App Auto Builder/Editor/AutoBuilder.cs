@@ -108,7 +108,7 @@ namespace zFramework.Extension
             {
                 if (profile.isBuild)
                 {
-                    var tasks = profile.customTask.Where(v => v.taskType == TaskType.PreBuild)
+                    var tasks = profile.customTask.Where(v => v.taskType == TaskType.PreBuild&& v.isEnable)
                          .OrderBy(v => v.priority);
                     foreach (var item in tasks)
                     {
@@ -143,7 +143,14 @@ namespace zFramework.Extension
                         }
                     }
                     var dir = $"{config.appLocationPath}/{profile.productName}";
-                    var file = $"{dir}/{profile.productName}.exe";
+                    var ext = config.targetPlatform switch
+                    {
+                        BuildTarget.StandaloneWindows => ".exe",
+                        BuildTarget.StandaloneWindows64 => ".exe",
+                        BuildTarget.Android => ".apk",
+                        _ => throw new Exception("不支持的打包平台！") // TODO: 其他平台的后缀请各领域专家补充，欢迎提 PR
+                    };
+                    var file = $"{dir}/{profile.productName}{ext}";
                     PlayerSettings.productName = profile.productName;
                     PlayerSettings.bundleVersion = profile.productVersion;
                     var report = BuildPipeline.BuildPlayer(scenes.ToArray(), file, config.targetPlatform, options_unity);
