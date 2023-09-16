@@ -26,7 +26,7 @@
    var file = $"{dir}/{profile.productName}{ext}";
    ```
    
-   文件在这里(Files are here)：[AutoBuilder.cs](Packages/App Auto Builder/Editor/AutoBuilder.cs)
+   文件在这里(Files are here)：([Packages/App Auto Builder/Editor/AutoBuilder.cs](https://github.com/Bian-Sh/Unity-Application-Auto-Builder/blob/af093ebb1424186ac0f6794e151aa7057f61ac65/Packages/App%20Auto%20Builder/Editor/AutoBuilder.cs#L161))
 
 # 界面（Interface）：
 
