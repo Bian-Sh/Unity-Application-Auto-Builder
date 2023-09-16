@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 // todo: add a task to operate files for copy, delete, move, rename, create, etc.
 // todo: 添加一个任务来操作文件，比如复制，删除，移动，重命名，创建等等

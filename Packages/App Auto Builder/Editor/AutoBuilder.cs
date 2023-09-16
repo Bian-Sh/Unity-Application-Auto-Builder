@@ -12,8 +12,16 @@ namespace zFramework.Extension
         [MenuItem("Tools/App Auto Builder")]
         public static void Init()
         {
+            //获取插件版本
+            var stack = new System.Diagnostics.StackTrace(true);
+            var path = stack.GetFrame(0).GetFileName();
+            var root = Path.GetDirectoryName(path);
+            root = root.Substring(0, root.LastIndexOf("\\Editor", StringComparison.Ordinal));
+            var content = File.ReadAllText($"{root}/package.json");
+            var version = JsonUtility.FromJson<Version>(content);
+
             var window = GetWindow(typeof(AutoBuilder));
-            window.titleContent = new GUIContent("App Auto Builder");
+            window.titleContent = new GUIContent($"App Auto Builder (v{version.version})");
             window.minSize = new Vector2(400, 500);
             window.Show();
         }
@@ -34,33 +42,39 @@ namespace zFramework.Extension
         {
             serializedObject.Update();
             InitProperties();
-            using (new GUILayout.VerticalScope())
+            using (var scope = new EditorGUI.ChangeCheckScope())
             {
-                EditorGUILayout.PropertyField(targetPlatform);
-                EditorGUILayout.PropertyField(appLocationPath);
-                GUILayout.Space(8);
-                using (var scroll = new GUILayout.ScrollViewScope(pos))
+                using (new GUILayout.VerticalScope())
                 {
-                    EditorGUILayout.PropertyField(profiles);
-                    pos = scroll.scrollPosition;
-                }
-                EditorGUILayout.Space();
-                using (var hr = new EditorGUILayout.HorizontalScope(GUI.skin.box))
-                {
-                    GUILayout.FlexibleSpace();
-                    var color = GUI.color;
-                    GUI.color = new Color32(127, 214, 253, 255);
-                    if (GUILayout.Button(build_content, GUILayout.Height(36), GUILayout.Width(120)))
+                    EditorGUILayout.PropertyField(targetPlatform);
+                    EditorGUILayout.PropertyField(appLocationPath);
+                    GUILayout.Space(8);
+                    using (var scroll = new GUILayout.ScrollViewScope(pos))
                     {
-                        BuildPlayer(config);
-                        ShowNotification(op_content);
-                        GUIUtility.ExitGUI();
+                        EditorGUILayout.PropertyField(profiles);
+                        pos = scroll.scrollPosition;
                     }
-                    GUI.color = color;
-                    GUILayout.FlexibleSpace();
+                    EditorGUILayout.Space();
+                    using (var hr = new EditorGUILayout.HorizontalScope(GUI.skin.box))
+                    {
+                        GUILayout.FlexibleSpace();
+                        var color = GUI.color;
+                        GUI.color = new Color32(127, 214, 253, 255);
+                        if (GUILayout.Button(build_content, GUILayout.Height(36), GUILayout.Width(120)))
+                        {
+                            BuildPlayer(config);
+                            ShowNotification(op_content);
+                            GUIUtility.ExitGUI();
+                        }
+                        GUI.color = color;
+                        GUILayout.FlexibleSpace();
+                    }
+                }
+                if (scope.changed)
+                {
+                    serializedObject.ApplyModifiedProperties();
                 }
             }
-            serializedObject.ApplyModifiedProperties();
         }
 
 
@@ -203,6 +217,14 @@ namespace zFramework.Extension
         SerializedProperty appLocationPath;
         SerializedProperty profiles;
         Vector2 pos = Vector2.zero;
+        #endregion
+
+        #region Assistance Type
+        [Serializable]
+        public class Version
+        {
+            public string version;
+        }
         #endregion
     }
 }

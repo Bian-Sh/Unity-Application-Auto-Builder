@@ -6,7 +6,7 @@ namespace zFramework.Extension
 {
     public class AutoBuildConfiguration : ScriptableObject
     {
-        [Header("打包平台，选不中的就别纠结")]
+        [Header("打包平台(支持 .apk、.exe)")]
         public BuildTarget targetPlatform = BuildTarget.StandaloneWindows;
         [OpenFolder, Header("打包保存路径")]
         public string appLocationPath;
