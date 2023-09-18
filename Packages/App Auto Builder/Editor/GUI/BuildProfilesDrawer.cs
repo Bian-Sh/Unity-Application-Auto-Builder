@@ -47,6 +47,7 @@ namespace zFramework.Extension
             Rect rect = position;
             rect.height = EditorGUIUtility.singleLineHeight;     // skip foldout
             DrawProperty(ref rect, "productName");                  // draw productName
+            DrawProperty(ref rect, "saveLocation");                   // draw saveLocation
             DrawProperty(ref rect, "productVersion");               // draw productVersion
             DrawProperty(ref rect, "isBuild");                               // draw isBuild
             DrawProperty(ref rect, "buildOptions");                   // draw buildOptions

@@ -158,7 +158,7 @@ namespace zFramework.Extension
                             options_unity |= op_unity;
                         }
                     }
-                    var dir = $"{config.appLocationPath}/{profile.productName}";
+                    var dir = Path.Combine(config.appLocationPath, profile.saveLocation);
                     var ext = config.targetPlatform switch
                     {
                         BuildTarget.StandaloneWindows => ".exe",
