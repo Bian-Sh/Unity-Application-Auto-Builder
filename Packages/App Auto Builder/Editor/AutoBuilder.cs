@@ -5,6 +5,7 @@ using System.Linq;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
+
 namespace zFramework.Extension
 {
     public class AutoBuilder : EditorWindow
@@ -34,7 +35,6 @@ namespace zFramework.Extension
         }
         void InitProperties()
         {
-            targetPlatform = serializedObject.FindProperty("targetPlatform");
             appLocationPath = serializedObject.FindProperty("appLocationPath");
             profiles = serializedObject.FindProperty("profiles");
         }
@@ -46,7 +46,6 @@ namespace zFramework.Extension
             {
                 using (new GUILayout.VerticalScope())
                 {
-                    EditorGUILayout.PropertyField(targetPlatform);
                     EditorGUILayout.PropertyField(appLocationPath);
                     GUILayout.Space(8);
                     using (var scroll = new GUILayout.ScrollViewScope(pos))
@@ -92,10 +91,15 @@ namespace zFramework.Extension
             {
                 throw new Exception("配置中存在软件名称为空的情况，请修复！");
             }
+            if (config.profiles.Any(v => v.platform == Platform.None))
+            {
+                throw new Exception("配置中存在打包平台未指定的情况，请修复！");
+            }
             if (config.profiles.All(v => !v.isBuild))
             {
                 throw new Exception("请至少保证一个打包的配置 isBuild = true");
             }
+
             foreach (var profile in config.profiles)
             {
                 if (profile.isBuild)
@@ -115,10 +119,13 @@ namespace zFramework.Extension
                 }
             }
         }
+
         static void BuildPlayer(AutoBuildConfiguration config)
         {
             ValidateProfiles(config);
-            foreach (var profile in config.profiles)
+            var profiles = SortProfiles(config);
+
+            foreach (var profile in profiles)
             {
                 if (profile.isBuild)
                 {
@@ -159,21 +166,51 @@ namespace zFramework.Extension
                         }
                     }
                     var dir = Path.Combine(config.appLocationPath, profile.saveLocation);
-                    var ext = config.targetPlatform switch
+                    if (!Directory.Exists(dir))
+                    {
+                        Directory.CreateDirectory(dir);
+                    }
+                    var buildTarget = (BuildTarget)(int)profile.platform;
+
+                    var ext = buildTarget switch
                     {
                         BuildTarget.StandaloneWindows => ".exe",
                         BuildTarget.StandaloneWindows64 => ".exe",
                         BuildTarget.Android => ".apk",
-                        _ => throw new Exception("不支持的打包平台！") // TODO: 其他平台的后缀请各领域专家补充，欢迎提 PR
+                        _ => string.Empty
                     };
                     var file = $"{dir}/{profile.productName}{ext}";
                     PlayerSettings.productName = profile.productName;
                     PlayerSettings.bundleVersion = profile.productVersion;
-                    var report = BuildPipeline.BuildPlayer(scenes.ToArray(), file, config.targetPlatform, options_unity);
+                    var report = BuildPipeline.BuildPlayer(scenes.ToArray(), file, buildTarget, options_unity);
                     Debug.Log($"{profile.productName} 打包结果：{report.summary.result}");
                 }
             }
             Debug.Log($" 打包结束，可通过控制台确认所有打包结果");
+        }
+
+        /// <summary>
+        /// 按 activeBuildTarget 最先打包，其他的按 platform 非乱序打包
+        /// </summary>
+        private static List<BuildProfiles> SortProfiles(AutoBuildConfiguration config)
+        {
+            var list = new List<BuildProfiles>();
+            // 抽离出需要打包的配置
+            var profiles = config.profiles.Where(v => v.isBuild).ToList();
+            // 找到当前 activebuildtarget 对应的所有配置
+            var actived_profiles = profiles.FindAll(v => v.platform == (Platform)(int)EditorUserBuildSettings.activeBuildTarget);
+            if (actived_profiles != null)
+            {
+                list.AddRange(actived_profiles);
+            }
+            // 对其他配置进行排序，保证不乱序即可
+            var other_profiles = profiles.FindAll(v => v.platform != (Platform)(int)EditorUserBuildSettings.activeBuildTarget);
+            if (other_profiles != null)
+            {
+                other_profiles.Sort((a, b) => b.platform.CompareTo(a.platform));
+                list.AddRange(other_profiles);
+            }
+            return list;
         }
 
         #region Callbacks 
@@ -213,7 +250,6 @@ namespace zFramework.Extension
         GUIContent build_content = new GUIContent("打包", "点击将按上述配置依次进行打包！");
         GUIContent op_content = new GUIContent("打包结束，请确认是否打包成功！");
         SerializedObject serializedObject;
-        SerializedProperty targetPlatform;
         SerializedProperty appLocationPath;
         SerializedProperty profiles;
         Vector2 pos = Vector2.zero;

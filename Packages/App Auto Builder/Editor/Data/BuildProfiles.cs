@@ -8,12 +8,14 @@ namespace zFramework.Extension
     {
         [Header("应用名称：")]
         public string productName;
-        [Header("存放文件夹："),ShowInExplorer]
+        [Header("是否出包：")]
+        public bool isBuild;
+        [Header("打包平台")]
+        public Platform platform;
+        [Header("保存路径（Sub）"),ShowInExplorer]
         public string saveLocation;
         [Header("软件版本：（形如：1.0.0）")]
         public string productVersion;
-        [Header("是否出包：")]
-        public bool isBuild;
         [Header("构建可选项："), EnumFlags]
 		public BuildOptionsLit buildOptions;
 		[Header("场景列表：不勾选不打包，注意排序")]

@@ -9,6 +9,7 @@ namespace zFramework.Extension
         {
             // begin drawer property
             var label_p = EditorGUI.BeginProperty(position, label, property);
+
             // draw a foldout
             var rect_foldout = position;
             rect_foldout.height = EditorGUIUtility.singleLineHeight;
@@ -18,16 +19,22 @@ namespace zFramework.Extension
             {
                 rect_foldout.xMin -= 12;
             }
+            //  将 platform 绘制成 label 后缀 ，例如：OneApp(Windows64)
+            var platform = property.FindPropertyRelative("platform");
+            var appname = property.FindPropertyRelative("productName").stringValue;
+            var label_platform = $"{appname}({platform.enumDisplayNames[platform.enumValueIndex]})";
+            label_p.text = label_platform;
 
             // 将 isbuild 绘制在 foldout 右侧，靠右对齐
-            rect_buildstate.x = position.width - 100;
+            rect_buildstate.x = position.width - 60;
             rect_buildstate.width = 100;
             var isbuild = property.FindPropertyRelative("isBuild");
-            var label_isbuild = $"Need be build {(isbuild.boolValue ? "<b><color=green>√</color></b>" : "<b><color=red>×</color></b>")}";
+            var label_isbuild = $"Need be build {(isbuild.boolValue && platform.enumValueIndex != 0 ? "<b><color=green>√</color></b>" : "<b><color=red>×</color></b>")}";
             var cached = GUI.skin.label.richText;
             GUI.skin.label.richText = true;
             GUI.Label(rect_buildstate, label_isbuild);
             GUI.skin.label.richText = cached;
+
             property.isExpanded = EditorGUI.Foldout(rect_foldout, property.isExpanded, label_p, EditorStyles.boldFont);
             if (!property.isExpanded)
             {
@@ -47,9 +54,10 @@ namespace zFramework.Extension
             Rect rect = position;
             rect.height = EditorGUIUtility.singleLineHeight;     // skip foldout
             DrawProperty(ref rect, "productName");                  // draw productName
+            DrawProperty(ref rect, "isBuild");                               // draw isBuild
+            DrawProperty(ref rect, "platform");                           // draw platform
             DrawProperty(ref rect, "saveLocation");                   // draw saveLocation
             DrawProperty(ref rect, "productVersion");               // draw productVersion
-            DrawProperty(ref rect, "isBuild");                               // draw isBuild
             DrawProperty(ref rect, "buildOptions");                   // draw buildOptions
             DrawProperty(ref rect, "scenes");                               // draw scenes
             DrawProperty(ref rect, "customTask");                     // draw customTask
