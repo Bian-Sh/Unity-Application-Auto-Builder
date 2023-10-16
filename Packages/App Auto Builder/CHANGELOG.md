@@ -27,8 +27,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Enhancements
 
-* 将是否需要 build 的状态展示在 Foldout 右侧，更加直观，折叠也不打        紧
+* 将是否需要 build 的状态展示在 Foldout 右侧，更加直观，折叠也不打紧
 * 用户自定义任务新增 Properties 按钮，方便用户定位、展示 Task 资产方便配置参数
+
+## [1.3.0] - 2023-10-16
+### Changed
+* 将工程内部的打包路径存为相对路径，方便工程迁移，多人协作
+* 将打包平台的选择内置到 BuildProfiles 中，这样就可以一次打多个平台的 app 了
+
 
 ### Changed
 
