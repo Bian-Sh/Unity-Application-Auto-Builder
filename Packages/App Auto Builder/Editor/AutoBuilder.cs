@@ -29,6 +29,7 @@ namespace zFramework.Extension
 
         void OnEnable()
         {
+            assetsDirInfo = new DirectoryInfo(Application.dataPath);
             config = AutoBuildConfiguration.LoadOrCreate();
             serializedObject = new SerializedObject(config);
             InitProperties();
@@ -165,7 +166,8 @@ namespace zFramework.Extension
                             options_unity |= op_unity;
                         }
                     }
-                    var dir = Path.Combine(config.appLocationPath, profile.saveLocation);
+                    var location = FormatPathToFullName(config.appLocationPath);
+                    var dir = Path.Combine(location, profile.saveLocation);
                     if (!Directory.Exists(dir))
                     {
                         Directory.CreateDirectory(dir);
@@ -189,6 +191,7 @@ namespace zFramework.Extension
             Debug.Log($" 打包结束，可通过控制台确认所有打包结果");
         }
 
+        #region Assitant Fucntions
         /// <summary>
         /// 按 activeBuildTarget 最先打包，其他的按 platform 非乱序打包
         /// </summary>
@@ -212,6 +215,19 @@ namespace zFramework.Extension
             }
             return list;
         }
+        private static string FormatPathToFullName(string stringValue)
+        {
+            if (string.IsNullOrEmpty(stringValue))
+            {
+                return $"{assetsDirInfo.Parent.FullName}/{fallbackPath}";
+            }
+            if (stringValue.StartsWith("./"))
+            {
+                stringValue = stringValue.Replace("./", $"{assetsDirInfo.Parent.FullName}/");
+            }
+            return stringValue;
+        }
+        #endregion
 
         #region Callbacks 
         [PostProcessBuild]
@@ -253,6 +269,8 @@ namespace zFramework.Extension
         SerializedProperty appLocationPath;
         SerializedProperty profiles;
         Vector2 pos = Vector2.zero;
+        public const string fallbackPath = "Build";
+        public static DirectoryInfo assetsDirInfo;
         #endregion
 
         #region Assistance Type

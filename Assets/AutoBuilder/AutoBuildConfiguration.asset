@@ -15,7 +15,7 @@ MonoBehaviour:
   appLocationPath: E:/Unity/Temp/AppLocation
   profiles:
   - productName: AppTheSameNameIsOk
-    isBuild: 1
+    isBuild: 0
     platform: 13
     saveLocation: AppOne
     productVersion: 1.0.0
@@ -34,7 +34,7 @@ MonoBehaviour:
       task: {fileID: 11400000, guid: eff9ce6e9d09eff45a184e59c5fdc2b2, type: 2}
   - productName: AppTheSameNameIsOk
     isBuild: 1
-    platform: 5
+    platform: 19
     saveLocation: AppTwo
     productVersion: 1.0.0
     buildOptions: 1
@@ -51,7 +51,7 @@ MonoBehaviour:
     - enabled: 0
       task: {fileID: 11400000, guid: eff9ce6e9d09eff45a184e59c5fdc2b2, type: 2}
   - productName: AppTheSameNameIsOk
-    isBuild: 1
+    isBuild: 0
     platform: 13
     saveLocation: AppThree
     productVersion: 1.0.0
