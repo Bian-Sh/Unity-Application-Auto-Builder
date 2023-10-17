@@ -28,21 +28,40 @@ The FunctionExecute Task is a highly useful tool that allows you to modify data 
     public override void Run()
     {
         Debug.Log($"{nameof(FunctionExecuteTask)}: Run Function");
-        // Save current open Scene into previours scene list , for re-open
-        previourScenes = EditorSceneManager.GetSceneManagerSetup();
-        // Open the scene
-        var loadedScene = EditorSceneManager.OpenScene(AssetDatabase.GetAssetPath(scene));
-        // Get the type of the class
-        var type = script.GetClass();
-        // Get the method
-        var flag = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-        var method = type.GetMethod(function, flag);
-        // Get the instance of the class
-        var instance = Object.FindObjectOfType(type);
-        // Invoke the method
-        method.Invoke(instance, new object[] { args });
-        EditorSceneManager.SaveScene(loadedScene);
-        // Re-open previours scenes
-        EditorSceneManager.RestoreSceneManagerSetup(previourScenes);
+        //如果用户指定场景，我们加载场景中的函数
+        // 否则，我们加载的函数必须认定用户执行的是静态函数，如果函数不存在则会报错，但不会影响构建
+        if (scene)
+        {
+            // Save current open Scene into previours scene list , for re-open
+            previourScenes = EditorSceneManager.GetSceneManagerSetup();
+            // Open the scene
+            var loadedScene = EditorSceneManager.OpenScene(AssetDatabase.GetAssetPath(scene));
+            // Get the type of the class
+            var type = script.GetClass();
+            // Get the method
+            var flag = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+            var method = type.GetMethod(function, flag);
+            // Get the instance of the class
+            var instance = Object.FindObjectOfType(type);
+            // Invoke the method
+            method.Invoke(instance, new object[] { args });
+            EditorSceneManager.SaveScene(loadedScene);
+            // Re-open previours scenes
+            EditorSceneManager.RestoreSceneManagerSetup(previourScenes);
+        }
+        else
+        {
+            var type = script.GetClass();
+            var flag = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+            var method = type.GetMethod(function, flag);
+            if (method != null)
+            {
+                method.Invoke(null, new object[] { args });
+            }
+            else
+            {
+                Debug.LogError($"{nameof(FunctionExecuteTask)}: 如果不指定场景，{function} 必须为静态方法!");
+            }
+        }
     }
 }
