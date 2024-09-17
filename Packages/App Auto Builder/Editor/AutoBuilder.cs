@@ -147,7 +147,7 @@ namespace zFramework.Extension
                     {
                         if (item)
                         {
-                            item.Run();
+                            item.Run(string.Empty); // 打包前任务不需要参数
                         }
                         else
                         {
@@ -247,15 +247,15 @@ namespace zFramework.Extension
             var profile = config.profiles.FirstOrDefault(v => v.productName == productname && v.platform == (Platform)target && v.isBuild);
             if (null != profile)
             {
-                var tasks = profile.customTask.Where(v => v.enabled)
+                var tasks = profile.customTask.Where(v => v.enabled && v.task.taskType == TaskType.PostBuild)
                     .Select(v => v.task)
-                    .Where(v => v.taskType == TaskType.PostBuild)
                      .OrderBy(v => v.priority);
+                var param = output;
                 foreach (var item in tasks)
                 {
                     if (item)
                     {
-                        item.Run();
+                        param = item.Run(param);
                     }
                     else
                     {

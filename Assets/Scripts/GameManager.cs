@@ -6,7 +6,7 @@ public class GameManager : MonoBehaviour
 
     private void Update()
     {
-        Debug.Log($"{nameof(GameManager)}: platform = {platform}");
+        Debug.LogError($"{nameof(GameManager)}: platform = {platform}");
     }
 
     

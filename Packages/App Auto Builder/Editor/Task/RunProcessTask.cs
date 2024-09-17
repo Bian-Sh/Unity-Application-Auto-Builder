@@ -13,16 +13,17 @@ public class RunProcessTask : BaseTask
     {
         Description = "在打包前后执行程序方便处理一些事务，应该会有用吧";
     }
-    public override void Run()
+    public override string Run(string output)
     {
         if (!string.IsNullOrEmpty(exePath))
         {
             Debug.Log($"{nameof(RunProcessTask)}: Run Process");
-            var process = System.Diagnostics.Process.Start(exePath, args);
+            var process = System.Diagnostics.Process.Start(exePath, this.args);
             if (waitForExit)
             {
                 process.WaitForExit();
             }
         }
+        return string.Empty;
     }
 }

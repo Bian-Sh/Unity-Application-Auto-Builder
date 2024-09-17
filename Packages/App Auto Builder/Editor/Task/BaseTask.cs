@@ -5,7 +5,7 @@ public class BaseTask : ScriptableObject
     public TaskType taskType;
     public int priority;
     internal string Description;
-    public virtual void Run()
+    public virtual string Run(string output)
     {
         throw new System.NotImplementedException();
     }

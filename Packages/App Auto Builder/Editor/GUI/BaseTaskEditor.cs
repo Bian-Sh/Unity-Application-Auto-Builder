@@ -9,12 +9,27 @@ public class BaseTaskEditor : Editor
     {
         task = (BaseTask)target;
     }
+
+    string arg = string.Empty;
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
-        if (GUILayout.Button(GUIContent, GUILayout.Height(30), GUILayout.Width(120)))
+        using (var verticalScope = new EditorGUILayout.VerticalScope(EditorStyles.selectionRect))
         {
-            task.Run();
+            arg = EditorGUILayout.TextField("Args", arg);
+            GUILayout.Space(4);
+            var buttonRect = GUILayoutUtility.GetRect(GUIContent, GUI.skin.button, GUILayout.Height(24), GUILayout.Width(120));
+            buttonRect.x = (EditorGUIUtility.currentViewWidth - buttonRect.width) / 2;
+
+            if (GUI.Button(buttonRect, GUIContent))
+            {
+               var output = task.Run(arg);
+                if (!string.IsNullOrEmpty(output))
+                {
+                    Debug.Log(output);
+                }
+            }
+
         }
         DrawHelpbox();
     }

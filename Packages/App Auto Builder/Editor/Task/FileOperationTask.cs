@@ -4,13 +4,11 @@ using UnityEngine;
 [CreateAssetMenu(fileName = "FileOperationTask", menuName = "Auto Builder/Task/File Operation Task")]
 public class FileOperationTask : BaseTask
 {
-
-
-    public override void Run()
+    public override string Run(string output)
     {
         //hi guys,if you want to add a task to operate files, you can add it here.
         // 嗨，bro，如果你想添加一个操作文件的任务，你可以在这里添加。
-
+        return string.Empty;
     }
 
     // enum of file operation type

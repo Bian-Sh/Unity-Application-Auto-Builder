@@ -199,6 +199,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0
@@ -499,7 +500,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 740810d97dcafcb40af5e2b91bf8be5b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  platform: FromCustomTask-Post
+  platform: FromCustomTask
 --- !u!4 &1731367579
 Transform:
   m_ObjectHideFlags: 0

@@ -25,7 +25,9 @@ public class FunctionExecuteTask : BaseTask
         Description = @"方法执行任务非常的有用，可以在打包前或者打包后动态的修改指定场景中的变量并保存，PreBuild、PostBuild 配合使用可以使得修改只对指定的构建生效！
 The FunctionExecute Task is a highly useful tool that allows you to modify data within a scene both before and after building, and then save those changes. By using prebuild and postbuild wisely, you can make targeted modifications for specific builds.";
     }
-    public override void Run()
+
+
+    public override string Run(string output)
     {
         Debug.Log($"{nameof(FunctionExecuteTask)}: Run Function");
         //如果用户指定场景，我们加载场景中的函数
@@ -44,7 +46,7 @@ The FunctionExecute Task is a highly useful tool that allows you to modify data 
             // Get the instance of the class
             var instance = Object.FindObjectOfType(type);
             // Invoke the method
-            method.Invoke(instance, new object[] { args });
+            method.Invoke(instance, new object[] { this.args });
             EditorSceneManager.SaveScene(loadedScene);
             // Re-open previours scenes
             EditorSceneManager.RestoreSceneManagerSetup(previourScenes);
@@ -56,12 +58,13 @@ The FunctionExecute Task is a highly useful tool that allows you to modify data 
             var method = type.GetMethod(function, flag);
             if (method != null)
             {
-                method.Invoke(null, new object[] { args });
+                method.Invoke(null, new object[] { this.args });
             }
             else
             {
                 Debug.LogError($"{nameof(FunctionExecuteTask)}: 如果不指定场景，{function} 必须为静态方法!");
             }
         }
+        return string.Empty;
     }
 }
