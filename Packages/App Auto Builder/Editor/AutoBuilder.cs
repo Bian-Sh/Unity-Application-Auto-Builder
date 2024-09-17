@@ -244,7 +244,7 @@ namespace zFramework.Extension
         {
             config ??= AutoBuildConfiguration.LoadOrCreate();
             var productname = Path.GetFileNameWithoutExtension(output);
-            var profile = config.profiles.FirstOrDefault(v => v.productName == productname);
+            var profile = config.profiles.FirstOrDefault(v => v.productName == productname && v.platform == (Platform)target && v.isBuild);
             if (null != profile)
             {
                 var tasks = profile.customTask.Where(v => v.enabled)
