@@ -20,7 +20,6 @@ public class VirboxEncryptTask : BaseTask
     }
     public override string Run(string output)
     {
-        Debug.Log($"Run {nameof(VirboxEncryptTask)} ,output = {output} !");
         if (string.IsNullOrEmpty(exePath))
         {
             throw new ArgumentNullException("exePath is null or empty");
