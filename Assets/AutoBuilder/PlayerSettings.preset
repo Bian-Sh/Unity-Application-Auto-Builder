@@ -173,30 +173,6 @@ Preset:
     value: 
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: m_ShowUnitySplashAds
-    value: 0
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: m_AdsAndroidGameId
-    value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: m_AdsIosGameId
-    value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: m_ShowSplashAdsSlogan
-    value: 0
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: m_SloganImage
-    value: 
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
-    propertyPath: m_SloganHeight
-    value: 150
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
     propertyPath: m_HolographicTrackingLossScreen
     value: 
     objectReference: {fileID: 0}
@@ -222,6 +198,10 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_ActiveColorSpace
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: unsupportedMSAAFallback
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
@@ -350,6 +330,10 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: androidFullscreenMode
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: androidAutoRotationBehavior
     value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
@@ -559,6 +543,10 @@ Preset:
   - target: {fileID: 0}
     propertyPath: switchNVNMaxPublicSamplerIDCount
     value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: switchMaxWorkerMultiple
+    value: 8
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: stadiaPresentMode
@@ -798,7 +786,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: iOSTargetOSVersionString
-    value: 11.0
+    value: 12.0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tvOSSdkVersion
@@ -810,7 +798,7 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: tvOSTargetOSVersionString
-    value: 11.0
+    value: 12.0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: uIPrerenderedIcon
@@ -1541,6 +1529,10 @@ Preset:
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
+    propertyPath: m_BuildTargetShaderSettings.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
     propertyPath: m_BuildTargetGraphicsJobs.Array.size
     value: 0
     objectReference: {fileID: 0}
@@ -1554,6 +1546,14 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: m_BuildTargetVRSettings.Array.size
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_DefaultShaderChunkSizeInMB
+    value: 16
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: m_DefaultShaderChunkCount
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
@@ -1685,7 +1685,7 @@ Preset:
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: switchUseGOLDLinker
+    propertyPath: switchEnableFileSystemTrace
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
@@ -1993,10 +1993,6 @@ Preset:
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: switchTouchScreenUsage
-    value: 0
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
     propertyPath: switchSupportedLanguagesMask
     value: 0
     objectReference: {fileID: 0}
@@ -2161,6 +2157,10 @@ Preset:
     value: 8
     objectReference: {fileID: 0}
   - target: {fileID: 0}
+    propertyPath: switchEnableTouchScreen
+    value: 1
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
     propertyPath: switchSocketConfigEnabled
     value: 0
     objectReference: {fileID: 0}
@@ -2201,12 +2201,12 @@ Preset:
     value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
-    propertyPath: switchPlayerConnectionEnabled
-    value: 1
-    objectReference: {fileID: 0}
-  - target: {fileID: 0}
     propertyPath: switchUseNewStyleFilepaths
     value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: switchUseLegacyFmodPriorities
+    value: 1
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: switchUseMicroSleepForYield
@@ -2605,6 +2605,10 @@ Preset:
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
+    propertyPath: webGLPowerPreference
+    value: 2
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
     propertyPath: scriptingDefineSymbols.Array.size
     value: 0
     objectReference: {fileID: 0}
@@ -2962,6 +2966,10 @@ Preset:
     objectReference: {fileID: 0}
   - target: {fileID: 0}
     propertyPath: activeInputHandler
+    value: 0
+    objectReference: {fileID: 0}
+  - target: {fileID: 0}
+    propertyPath: windowsGamepadBackendHint
     value: 0
     objectReference: {fileID: 0}
   - target: {fileID: 0}
