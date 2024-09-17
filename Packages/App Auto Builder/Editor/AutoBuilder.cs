@@ -119,6 +119,15 @@ namespace zFramework.Extension
                     }
                 }
             }
+            // 不可以存在相同的 Profile , 约定：ProductName 、 Platform 以及 sublocation 完全相同代表重复
+            var groups = config.profiles.GroupBy(v => new { v.productName, v.platform, v.saveLocation });
+            foreach (var group in groups)
+            {
+                if (group.Count() > 1)
+                {
+                    throw new Exception($"{group.Key.productName} 配置重复，至少 SubLocation 要不同！");
+                }
+            }
         }
 
         static void BuildPlayer(AutoBuildConfiguration config)
