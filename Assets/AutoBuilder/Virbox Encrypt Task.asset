@@ -15,6 +15,7 @@ MonoBehaviour:
   taskType: 1
   priority: 0
   exePath: C:\Program Files\senseshield\Virbox Protector 3 Trial\bin\virboxprotector_con.exe
+  keepSSP: 0
   dlls:
   - Assembly-CSharp.dll
   - Unity.TextMeshPro.dll

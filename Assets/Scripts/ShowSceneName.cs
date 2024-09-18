@@ -19,5 +19,10 @@ public class ShowSceneName : MonoBehaviour
             str += $"{nameof(ShowSceneName)}: 打包的场景有：{name}\n";
         }
         text.text = str;
+        // 获取 Environment.GetCommandLineArgs() 的参数并换行展示
+        var args = System.Environment.GetCommandLineArgs();
+        var argsStr = string.Join("\n", args);
+        text.text += $"\n命令行参数：\n{argsStr}";
+
     }
 }

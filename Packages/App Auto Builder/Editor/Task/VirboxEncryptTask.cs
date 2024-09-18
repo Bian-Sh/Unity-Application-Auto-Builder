@@ -11,6 +11,9 @@ public class VirboxEncryptTask : BaseTask
     [Header("virbox 控制台程序路径：")]
     public string exePath;
 
+    [Header("保留 .ssp 文件？")]
+    public bool keepSSP = false;
+
     [Header("需要被加密的 DLL 文件：")]
     public string[] dlls = new[] { "Assembly-CSharp.dll" };
 
@@ -20,9 +23,9 @@ public class VirboxEncryptTask : BaseTask
     }
     public override string Run(string output)
     {
-        if (string.IsNullOrEmpty(exePath))
+        if (string.IsNullOrEmpty(exePath)||!File.Exists(exePath))
         {
-            throw new ArgumentNullException("exePath is null or empty");
+            throw new ArgumentNullException("Virbox 控制台程序路径不可用，请检查！");
         }
         if (string.IsNullOrEmpty(output))
         {
@@ -62,6 +65,10 @@ public class VirboxEncryptTask : BaseTask
         else
         {
             Debug.Log($"Virbox 加密完成：\n{outputStr}");
+        }
+        if (!keepSSP)
+        {
+            File.Delete(ssp);
         }
         return $"{root}/{outputEncrypted}";
     }
