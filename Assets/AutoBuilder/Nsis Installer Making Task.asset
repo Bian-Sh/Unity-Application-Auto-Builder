@@ -15,23 +15,27 @@ MonoBehaviour:
   taskType: 1
   priority: 1
   exePath: C:\Program Files (x86)\NSIS\makensis.exe
-  appName: "Auto Builder NSIS \u793A\u4F8B\u5E94\u7528"
-  appVersion: 1.0.1
-  startMenuFolder: Auto Builder Example
-  appInstallDir: 'For Auto Builder/v${PRODUCT_VERSION}/NSIS Example '
-  outputFileName: autobulder-nsistaskdemo-v${PRODUCT_VERSION}-setup.exe
-  publisher: Bian Shanghai
-  website: https://www.jianshu.com/u/275cca6e5f17
-  brandingText: "\u6D4B\u8BD5\u7528\u4F8B\uFF0C\u4EC5\u4F9B\u53C2\u8003"
-  components:
-  - sectionName: encrypt
-    filePath: "D:\\\u8FC5\u96F7\u4E0B\u8F7D\\sense_shield_installer_pub_lcc_2.7.0.66418.exe"
-    args: /S /not_create_desktop_shortcuts
-  languages:
-  - SimpChinese
-  shotcuts:
-  - name: "Auto Builder NSIS \u793A\u4F8B\u5E94\u7528"
-    args: 
-  - name: "Auto Builder NSIS \u793A\u4F8B\u5E94\u7528(\u5E26\u81EA\u5B9A\u4E49\u53C2\u6570)"
-    args: --Port=8888
-  keepNsiFile: 1
+  nsiResolvers:
+  - appName: "Auto Builder NSIS \u793A\u4F8B\u5E94\u7528"
+    appVersion: 1.1.0
+    startMenuFolder: Auto Builder Example
+    appInstallDir: For Auto Builder/v${PRODUCT_VERSION}/NSIS Example
+    outputFileName: autobulder-nsistaskdemo-v${PRODUCT_VERSION}-setup.exe
+    publisher: Bian Shanghai
+    website: https://www.jianshu.com/u/275cca6e5f17
+    brandingText: "\u6D4B\u8BD5\u7528\u4F8B\uFF0C\u4EC5\u4F9B\u53C2\u8003"
+    components:
+    - sectionName: encrypt
+      filePath: "\u8FD9\u91CC\u586B\u5199\u8981\u6267\u884C\u7684\u7EC4\u4EF6"
+      args: /S /not_create_desktop_shortcuts
+    languages:
+    - SimpChinese
+    shotcuts:
+    - name: "Auto Builder NSIS \u793A\u4F8B\u5E94\u7528"
+      args: 
+    - name: "Auto Builder NSIS \u793A\u4F8B\u5E94\u7528(\u5E26\u81EA\u5B9A\u4E49\u53C2\u6570)"
+      args: --Port=8888
+    keepNsiFile: 0
+    compileNsiFile: 0
+    nsiOutputPath: 
+    installerOutputPath: 
