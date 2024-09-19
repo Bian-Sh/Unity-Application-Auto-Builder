@@ -1,6 +1,6 @@
 ﻿using UnityEngine;
 using UnityEditor;
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     [CustomPropertyDrawer(typeof(TaskInfo))]
     public class TaskInfoDrawer : PropertyDrawer

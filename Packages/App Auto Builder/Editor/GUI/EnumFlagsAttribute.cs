@@ -2,7 +2,7 @@
 using UnityEditor;
 using UnityEngine;
 
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     [AttributeUsage(AttributeTargets.Field, AllowMultiple = false)]
     public class EnumFlagsAttribute : PropertyAttribute { }

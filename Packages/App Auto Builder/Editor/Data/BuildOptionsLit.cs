@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     [Flags]
     public enum BuildOptionsLit

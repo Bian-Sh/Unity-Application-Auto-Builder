@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     [Serializable]
     public class BuildProfiles

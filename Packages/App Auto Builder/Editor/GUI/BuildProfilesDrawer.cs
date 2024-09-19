@@ -1,6 +1,6 @@
 using UnityEditor;
 using UnityEngine;
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     [CustomPropertyDrawer(typeof(BuildProfiles))]
     public class BuildProfilesDrawer : PropertyDrawer

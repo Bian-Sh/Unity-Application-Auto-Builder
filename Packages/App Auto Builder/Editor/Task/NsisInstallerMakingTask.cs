@@ -14,205 +14,195 @@ using UnityEngine;
     // 约定：安装时会覆盖已有文件，卸载时会移除所有文件，所以，如有用户数据，请存储在非安装目录下！！！！
     // 约定：由于 Nsis 使用的路径是相对于 .nsi 文件的，为方便起见，.nsi 文件与要打包的文件夹放在同一目录下
  */
-/// <summary>
-///  这个任务通过 makensis.exe + .nsi 文件生成 Window 系统下的 exe 安装程序！
-/// </summary>
-[CreateAssetMenu(fileName = "Nsis Installer Making Task", menuName = "Auto Builder/Task/Nsis Installer Making Task")]
-public class NsisInstallerMakingTask : BaseTask
+namespace zFramework.AppBuilder
 {
-    [Header("makensis.exe 路径：")]
-    public string exePath;
-    [Header("App 信息：")]
-    public string appName;
-    public string appVersion;
-    public string startMenuFolder;
-    public string appInstallDir; // 安装目录拼接 ${PRODUCT_VERSION} 可以实现版本号目录
-    public string outputFileName; // 应用名+v版本号+setup.exe ，全小写，例如：myapp-v1.0-setup.exe
-    [Header("版权信息：")]
-    public string publisher;
-    public string website;
-    public string brandingText;
-    [Header("内嵌组件：")]
-    public Component[] components;
-    [Header("多语言")]
-    public string[] languages = new[] { "SimpChinese" };
-    [Header("快捷方式：")]
-    public Shotcut[] shotcuts;
-    [Header("保留 .nso 脚本?")]
-    public bool keepNsiFile = false;
-
-
-    private void OnEnable()
-    {
-        taskType = TaskType.PostBuild;
-        Description = "使用 makensis.exe 和 .nsi 文件生成 Windows 系统下的 exe 安装程序。Generate a Windows executable installer using makensis.exe and .nsi files.";
-    }
-    public override string Run(string output)
-    {
-        Debug.Log($"Run {nameof(NsisInstallerMakingTask)} ,output = {output} !");
-        if (string.IsNullOrEmpty(exePath)||!File.Exists(exePath))
-        {
-            throw new ArgumentNullException("makensis.exe 路径不可用，请检查！");
-        }
-        if (string.IsNullOrEmpty(output))
-        {
-            throw new ArgumentNullException("output path is null or empty");
-        }
-        // 传递过来的是准备构建安装包的文件夹路径，需要在这个目录的同级目录下生成 .nsi 文件
-        // 然后调用 makensis.exe 进行编译，生成安装程序也在此目录同级目录下
-        string nsiFilePath = Path.Combine(output, $"../{appName}-v{appVersion}-setup.nsi");
-        string exeEntry = Directory.GetFiles(output, "*.exe").Where(x => !x.StartsWith("UnityCrashHandler")).FirstOrDefault();
-        if (string.IsNullOrEmpty(exeEntry))
-        {
-            throw new FileNotFoundException("Can not find exe file in output folder");
-        }
-        appInstallDir = appInstallDir.Replace("/", "\\");
-        outputFileName = outputFileName.Replace("${PRODUCT_VERSION}", appVersion);//NSIS 脚本不支持 ${PRODUCT_VERSION} 这种写法,所以替他处理了
-
-        string exeName = Path.GetFileName(exeEntry);
-        string originDir = Path.GetFileName(output);
-        var nsiBuilder = new StringBuilder(defaultNsisScript);
-        nsiBuilder.Replace("#Name#", appName)
-                  .Replace("#Version#", appVersion)
-                  .Replace("#ExeName#", exeName)
-                  .Replace("#InstallDir#", appInstallDir)
-                  .Replace("#OutputFileName#", outputFileName)
-                  .Replace("#Publisher#", publisher)
-                  .Replace("#WebSite#", website)
-                  .Replace("#BrandingText#", brandingText)
-                  .Replace("#OriginDir#", originDir)
-                  .Replace("#StartMenuDir#", startMenuFolder);
-
-        // 多语言
-        string lang = string.Join("\n", languages.Select(x => $"!insertmacro MUI_LANGUAGE \"{x}\""));
-        nsiBuilder.Replace("#Languate#", lang);
-        // 构建快捷方式
-        StringBuilder sb_add = new(), sb_remove = new();
-        foreach (var shotcut in shotcuts)
-        {
-            string args = string.IsNullOrEmpty(shotcut.args) ? string.Empty : $" \"{shotcut.args}\"";
-
-            // add start menu shotcut at install section
-            // CreateShortCut ""$SMPROGRAMS\#StartMenuDir#\#Name#.lnk"" ""$INSTDIR\#ExeName#""
-            sb_add.AppendLine($"CreateShortCut \"$SMPROGRAMS\\{startMenuFolder}\\{shotcut.name}.lnk\" \"$INSTDIR\\{exeName}\"{args}");
-            // add  desktop shotcut at install section
-            // CreateShortCut ""$DESKTOP\#Name#.lnk"" ""$INSTDIR\#ExeName#""
-            sb_add.AppendLine($"CreateShortCut \"$DESKTOP\\{shotcut.name}.lnk\" \"$INSTDIR\\{exeName}\"{args}");
-            // delete startmenu shotcut at uninstall section
-            //; Delete ""$SMPROGRAMS\#StartMenuDir#\#Name#.lnk""
-            sb_remove.AppendLine($"Delete \"$SMPROGRAMS\\{startMenuFolder}\\{shotcut.name}.lnk\"");
-            // delete desktop shotcut at uninstall section
-            //;  Delete ""$DESKTOP\#Name#.lnk""
-            sb_remove.AppendLine($"Delete \"$DESKTOP\\{shotcut.name}.lnk\"");
-        }
-        nsiBuilder.Replace("#AddedShotcut#", sb_add.ToString())
-                  .Replace("#RemovedShotcut#", sb_remove.ToString());
-
-        // 处理组件
-        var idx = 2; //从 SEC02 开始
-        StringBuilder sb = new();
-        foreach (var component in components)
-        {
-            var SEC = $"SEC{(idx > 9 ? $"{idx}" : $"0{idx}")}";
-            idx++;
-            sb.AppendLine($"Section \"{component.sectionName}\" {SEC}");
-            sb.AppendLine($"  SetOutPath \"$TEMP\"");
-            sb.AppendLine($"  SetOverwrite ifnewer");
-            sb.AppendLine($"  File \"{component.filePath}\"");
-            sb.AppendLine($"  ExecWait '\"$TEMP\\{Path.GetFileName(component.filePath)}\" {component.args}' $0");
-            sb.AppendLine($"  DetailPrint \"{Path.GetFileName(component.filePath)} $R0 return $0\"");
-            sb.AppendLine($"  IntCmp $0 3 InstallSuccess InstallSuccess InstallError");
-            sb.AppendLine($" InstallError:");
-            sb.AppendLine($" ; TODO");
-            sb.AppendLine($" Quit");
-            sb.AppendLine($" InstallSuccess:");
-            sb.AppendLine($" ; TODO");
-            sb.AppendLine($"SectionEnd");
-            sb.AppendLine();
-        }
-        nsiBuilder.Replace("#Components#", sb.ToString());
-
-        // 使用 GB2312 编码保存
-        File.WriteAllText(nsiFilePath, nsiBuilder.ToString(), Encoding.GetEncoding("GB2312"));
-
-        // 调用 makensis.exe 进行编译
-        using var process = new System.Diagnostics.Process();
-        process.StartInfo.FileName = exePath;
-        // 使用 V4 log 等级
-        process.StartInfo.Arguments = $"-V4 \"{nsiFilePath}\"";
-        process.StartInfo.UseShellExecute = false;
-        process.StartInfo.RedirectStandardOutput = true;
-        process.StartInfo.RedirectStandardError = true;
-        process.StartInfo.CreateNoWindow = true;
-
-        process.Start();
-        process.WaitForExit();
-        if (process.ExitCode != 0) 
-        {
-            throw new Exception($"Nsis 编译错误!");
-        }
-        else
-        {
-            Debug.Log($"Nsis 编译完成!");
-        }
-
-        if (!keepNsiFile)
-        {
-            File.Delete(nsiFilePath);
-        }
-
-        return string.Empty; // 无需反馈
-    }
-
-
-
-
-
-
-
-
     /// <summary>
-    ///  第三方组件默认释放到 Temp 目录下，并使用 args 参数进行安装
+    ///  这个任务通过 makensis.exe + .nsi 文件生成 Window 系统下的 exe 安装程序！
     /// </summary>
-    [Serializable]
-    public class Component
+    [CreateAssetMenu(fileName = "Nsis Installer Making Task", menuName = "Auto Builder/Task/Nsis Installer Making Task")]
+    public class NsisInstallerMakingTask : BaseTask
     {
+        [Header("makensis.exe 路径：")]
+        public string exePath;
+        [Header("App 信息：")]
+        public string appName;
+        public string appVersion;
+        public string startMenuFolder;
+        public string appInstallDir; // 安装目录拼接 ${PRODUCT_VERSION} 可以实现版本号目录
+        public string outputFileName; // 应用名+v版本号+setup.exe ，全小写，例如：myapp-v1.0-setup.exe
+        [Header("版权信息：")]
+        public string publisher;
+        public string website;
+        public string brandingText;
+        [Header("内嵌组件：")]
+        public Component[] components;
+        [Header("多语言")]
+        public string[] languages = new[] { "SimpChinese" };
+        [Header("快捷方式：")]
+        public Shotcut[] shotcuts;
+        [Header("保留 .nsi 脚本？")]
+        public bool keepNsiFile = false;
+        [Header("编译 .nsi 脚本？")]
+        public bool compileNsiFile = true;
+
+
+        private void OnEnable()
+        {
+            taskType = TaskType.PostBuild;
+            Description = "使用 makensis.exe 和 .nsi 文件生成 Windows 系统下的 exe 安装程序。Generate a Windows executable installer using makensis.exe and .nsi files.";
+        }
+        public override string Run(string output)
+        {
+            Debug.Log($"Run {nameof(NsisInstallerMakingTask)} ,output = {output} !");
+            if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
+            {
+                throw new ArgumentNullException("makensis.exe 路径不可用，请检查！");
+            }
+            if (string.IsNullOrEmpty(output))
+            {
+                throw new ArgumentNullException("output path is null or empty");
+            }
+            // 传递过来的是准备构建安装包的文件夹路径，需要在这个目录的同级目录下生成 .nsi 文件
+            // 然后调用 makensis.exe 进行编译，生成安装程序也在此目录同级目录下
+            string nsiFilePath = Path.Combine(output, $"../{appName}-v{appVersion}-setup.nsi");
+            string exeEntry = Directory.GetFiles(output, "*.exe").Where(x => !x.StartsWith("UnityCrashHandler")).FirstOrDefault();
+            if (string.IsNullOrEmpty(exeEntry))
+            {
+                throw new FileNotFoundException("Can not find exe file in output folder");
+            }
+            appInstallDir = appInstallDir.Replace("/", "\\");
+            outputFileName = outputFileName.Replace("${PRODUCT_VERSION}", appVersion);//NSIS 脚本不支持 ${PRODUCT_VERSION} 这种写法,所以替他处理了
+
+            string exeName = Path.GetFileName(exeEntry);
+            string originDir = Path.GetFileName(output);
+            var nsiBuilder = new StringBuilder(defaultNsisScript);
+            nsiBuilder.Replace("#Name#", appName)
+                      .Replace("#Version#", appVersion)
+                      .Replace("#ExeName#", exeName)
+                      .Replace("#InstallDir#", appInstallDir)
+                      .Replace("#OutputFileName#", outputFileName)
+                      .Replace("#Publisher#", publisher)
+                      .Replace("#WebSite#", website)
+                      .Replace("#BrandingText#", brandingText)
+                      .Replace("#OriginDir#", originDir)
+                      .Replace("#StartMenuDir#", startMenuFolder);
+
+            // 多语言
+            string lang = string.Join("\n", languages.Select(x => $"!insertmacro MUI_LANGUAGE \"{x}\""));
+            nsiBuilder.Replace("#Languate#", lang);
+            // 构建快捷方式
+            StringBuilder sb_add = new(), sb_remove = new();
+            foreach (var shotcut in shotcuts)
+            {
+                string args = string.IsNullOrEmpty(shotcut.args) ? string.Empty : $" \"{shotcut.args}\"";
+
+                // add start menu shotcut at install section
+                // CreateShortCut ""$SMPROGRAMS\#StartMenuDir#\#Name#.lnk"" ""$INSTDIR\#ExeName#""
+                sb_add.AppendLine($"CreateShortCut \"$SMPROGRAMS\\{startMenuFolder}\\{shotcut.name}.lnk\" \"$INSTDIR\\{exeName}\"{args}");
+                // add  desktop shotcut at install section
+                // CreateShortCut ""$DESKTOP\#Name#.lnk"" ""$INSTDIR\#ExeName#""
+                sb_add.AppendLine($"CreateShortCut \"$DESKTOP\\{shotcut.name}.lnk\" \"$INSTDIR\\{exeName}\"{args}");
+                // delete startmenu shotcut at uninstall section
+                //; Delete ""$SMPROGRAMS\#StartMenuDir#\#Name#.lnk""
+                sb_remove.AppendLine($"Delete \"$SMPROGRAMS\\{startMenuFolder}\\{shotcut.name}.lnk\"");
+                // delete desktop shotcut at uninstall section
+                //;  Delete ""$DESKTOP\#Name#.lnk""
+                sb_remove.AppendLine($"Delete \"$DESKTOP\\{shotcut.name}.lnk\"");
+            }
+            nsiBuilder.Replace("#AddedShotcut#", sb_add.ToString())
+                      .Replace("#RemovedShotcut#", sb_remove.ToString());
+
+            // 处理组件
+            var idx = 2; //从 SEC02 开始
+            StringBuilder sb = new();
+            foreach (var component in components)
+            {
+                var SEC = $"SEC{(idx > 9 ? $"{idx}" : $"0{idx}")}";
+                idx++;
+                sb.AppendLine($"Section \"{component.sectionName}\" {SEC}");
+                sb.AppendLine($"  SetOutPath \"$TEMP\"");
+                sb.AppendLine($"  SetOverwrite ifnewer");
+                sb.AppendLine($"  File \"{component.filePath}\"");
+                sb.AppendLine($"  ExecWait '\"$TEMP\\{Path.GetFileName(component.filePath)}\" {component.args}' $0");
+                sb.AppendLine($"  DetailPrint \"{Path.GetFileName(component.filePath)} $R0 return $0\"");
+                sb.AppendLine($"  IntCmp $0 3 InstallSuccess InstallSuccess InstallError");
+                sb.AppendLine($" InstallError:");
+                sb.AppendLine($" ; TODO");
+                sb.AppendLine($" Quit");
+                sb.AppendLine($" InstallSuccess:");
+                sb.AppendLine($" ; TODO");
+                sb.AppendLine($"SectionEnd");
+                sb.AppendLine();
+            }
+            nsiBuilder.Replace("#Components#", sb.ToString());
+
+            // 使用 GB2312 编码保存
+            File.WriteAllText(nsiFilePath, nsiBuilder.ToString(), Encoding.GetEncoding("GB2312"));
+
+            // 调用 makensis.exe 进行编译, V4 log 等级 args =  $"-V4 \"{nsiFilePath}\""
+            if (compileNsiFile) 
+            {
+
+            }
+
+
+            if (!keepNsiFile)
+            {
+                File.Delete(nsiFilePath);
+            }
+
+            return string.Empty; // 无需反馈
+        }
+
+
+
+
+
+
+
+
         /// <summary>
-        ///  章节/分段名称
+        ///  第三方组件默认释放到 Temp 目录下，并使用 args 参数进行安装
         /// </summary>
-        public string sectionName;
-        /// <summary>
-        ///  文件路径
-        /// </summary>
-        public string filePath;
-        /// <summary>
-        ///  安装参数，如果不想看见安装界面，请指定对应静默安装参数
-        /// </summary>
-        public string args;
-    }
+        [Serializable]
+        public class Component
+        {
+            /// <summary>
+            ///  章节/分段名称
+            /// </summary>
+            public string sectionName;
+            /// <summary>
+            ///  文件路径
+            /// </summary>
+            public string filePath;
+            /// <summary>
+            ///  安装参数，如果不想看见安装界面，请指定对应静默安装参数
+            /// </summary>
+            public string args;
+        }
 
-    [Serializable]
-    public class Shotcut
-    {
-        public string name;
-        public string args; // 根据上下文自动获取、 自动拼接到目标程序后面
-    }
+        [Serializable]
+        public class Shotcut
+        {
+            public string name;
+            public string args; // 根据上下文自动获取、 自动拼接到目标程序后面
+        }
 
-    // 一些自定义占位符：
-    // App 信息
-    // #Name#  、#Version# 、#ExeName#、#InstallDir#
-    // #StartMenuDir# 、#OutputFileName#、#OriginDir#
-    // #Language# 支持多语音，使用英文字符 ; 分割即可
-    // #AddedShotcut# 在这里处理快捷方式的添加，包括开始菜单、桌面
-    // #RemovedShotcut# 在这里处理快捷方式的移除，包括开始菜单、桌面
-    // 版权信息
-    // #Publisher#  、#WebSite# 、#BrandingText#
-    // 组件信息
-    // #Components# 
+        // 一些自定义占位符：
+        // App 信息
+        // #Name#  、#Version# 、#ExeName#、#InstallDir#
+        // #StartMenuDir# 、#OutputFileName#、#OriginDir#
+        // #Language# 支持多语音，使用英文字符 ; 分割即可
+        // #AddedShotcut# 在这里处理快捷方式的添加，包括开始菜单、桌面
+        // #RemovedShotcut# 在这里处理快捷方式的移除，包括开始菜单、桌面
+        // 版权信息
+        // #Publisher#  、#WebSite# 、#BrandingText#
+        // 组件信息
+        // #Components# 
 
 
 
-    const string defaultNsisScript = @"; 该脚本使用 App Auto Builder 生成
+        const string defaultNsisScript = @"; 该脚本使用 App Auto Builder 生成
 ; 安装程序初始定义常量
 !define PRODUCT_NAME ""#Name#""
 !define PRODUCT_VERSION ""#Version#""
@@ -352,4 +342,5 @@ Function un.onUninstSuccess
   MessageBox MB_ICONINFORMATION|MB_OK ""$(^Name) 已成功地从您的计算机移除。""
 FunctionEnd
 ";
+    }
 }

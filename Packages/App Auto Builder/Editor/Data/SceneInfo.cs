@@ -1,6 +1,6 @@
 ﻿using System;
 using UnityEditor;
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     [Serializable]
     public class SceneInfo

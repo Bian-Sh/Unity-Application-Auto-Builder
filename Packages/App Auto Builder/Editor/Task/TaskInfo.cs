@@ -1,5 +1,5 @@
 using System;
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     [Serializable]
     public class TaskInfo

@@ -2,7 +2,7 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     public class OpenFolderAttribute : PropertyAttribute { }
     [CustomPropertyDrawer(typeof(OpenFolderAttribute))]

@@ -1,12 +1,14 @@
 using UnityEngine;
-
-public class BaseTask : ScriptableObject
+namespace zFramework.AppBuilder
 {
-    public TaskType taskType;
-    public int priority;
-    internal string Description;
-    public virtual string Run(string output)
+    public class BaseTask : ScriptableObject
     {
-        throw new System.NotImplementedException();
+        public TaskType taskType;
+        public int priority;
+        internal string Description;
+        public virtual string Run(string output)
+        {
+            throw new System.NotImplementedException();
+        }
     }
 }

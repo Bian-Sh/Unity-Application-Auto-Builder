@@ -1,4 +1,4 @@
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     public enum Platform
     {

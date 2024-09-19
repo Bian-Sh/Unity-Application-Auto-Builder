@@ -1,7 +1,7 @@
 using System.IO;
 using UnityEditor;
 using UnityEngine;
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     /// <summary>
     /// Show in explorer for a folder path

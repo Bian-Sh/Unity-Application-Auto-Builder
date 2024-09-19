@@ -6,7 +6,7 @@ using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
 
-namespace zFramework.Extension
+namespace zFramework.AppBuilder
 {
     public class AutoBuilder : EditorWindow
     {
