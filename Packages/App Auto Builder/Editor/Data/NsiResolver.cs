@@ -93,6 +93,10 @@ namespace zFramework.Extension
             StringBuilder sb = new();
             foreach (var component in components)
             {
+                if (!component.enable)
+                {
+                    continue;
+                }
                 var SEC = $"SEC{(idx > 9 ? $"{idx}" : $"0{idx}")}";
                 idx++;
                 sb.AppendLine($"Section \"{component.sectionName}\" {SEC}");
@@ -244,6 +248,10 @@ FunctionEnd
         [Serializable]
         public class Component
         {
+            /// <summary>
+            ///  启用与否
+            /// </summary>
+            public bool enable;
             /// <summary>
             ///  章节/分段名称
             /// </summary>
