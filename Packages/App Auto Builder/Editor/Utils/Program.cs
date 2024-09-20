@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
-using Debug = UnityEngine.Debug;
 
 namespace zFramework.AppBuilder.Utils
 {
@@ -49,10 +48,7 @@ namespace zFramework.AppBuilder.Utils
             outputReader.Start();
             errorReader.Start();
 
-
             await Task.Run(WaitForExit);
-
-            Debug.Log($"Process exited with code {_process.ExitCode}");
         }
 
         public void Dispose()
