@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using UnityEngine;
 using zFramework.AppBuilder;
@@ -40,27 +41,36 @@ namespace zFramework.Extension
             {
                 throw new ArgumentNullException("makensis.exe 路径不可用，请检查！");
             }
-            if (string.IsNullOrEmpty(output))
+            // 如果是文件，就使用其 Parent 文件夹
+            if (File.Exists(output))
+            {
+                output = Path.GetDirectoryName(output);
+            }
+            if (string.IsNullOrEmpty(output) || !Directory.Exists(output))
             {
                 throw new ArgumentNullException("output path is null or empty");
             }
-
             foreach (var nsiResolver in nsiResolvers)
             {
+                if (!nsiResolver.enable)
+                {
+                    continue;
+                }
                 var nsifile = nsiResolver.Process(output);
 
                 if (nsiResolver.compileNsiFile)
                 {
                     // 调用 makensis.exe 进行编译
-                    var startInfo = new System.Diagnostics.ProcessStartInfo();
-                    startInfo.FileName = exePath;
-                    // 使用 V4 log 等级
-                    startInfo.Arguments = $"-V4 \"{nsifile}\"";
-                    startInfo.UseShellExecute = false;
-                     startInfo.CreateNoWindow = true;
+                    var startInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = exePath,
+                        Arguments = $"-V4 \"{nsifile}\"", // 使用 V4 log 等级
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
                     var program = new Program(startInfo);
 
-                    program.OnStandardOutputReceived += OnStandardOutputReceived; 
+                    program.OnStandardOutputReceived += OnStandardOutputReceived;
                     program.OnStandardErrorReceived += (line) =>
                     {
                         Debug.LogError(line);
@@ -88,7 +98,10 @@ namespace zFramework.Extension
         private string location;
         // 相对路径文件，当任务执行前记录
         private readonly HashSet<string> files = new();
-
+        /// <summary>
+        ///  Compile Nsi File log, 反馈编译进度
+        /// </summary>
+        /// <param name="obj"></param>
         private void OnStandardOutputReceived(string obj)
         {
             //Progress Bar Report Here

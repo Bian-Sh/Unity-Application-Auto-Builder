@@ -8,6 +8,8 @@ namespace zFramework.Extension
     [Serializable]
     public class NsiResolver
     {
+        [Header("是否启用？")]
+        public bool enable;
         [Header("App 信息：")]
         public string appName;
         public string appVersion;
@@ -35,12 +37,6 @@ namespace zFramework.Extension
 
         public string Process(string output)
         {
-            // 如果是文件，就使用其 Parent 文件夹
-            if (File.Exists(output))
-            {
-                output = Path.GetDirectoryName(output);
-            }
-
             if (!Directory.Exists(nsiOutputPath))
             {
                 Directory.CreateDirectory(nsiOutputPath);
