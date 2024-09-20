@@ -81,7 +81,6 @@ namespace zFramework.Extension
                         {
                             FileName = exePath,
                             Arguments = $"-V4 \"{nsifile}\"", // 使用 V4 log 等级
-                            UseShellExecute = false,
                             CreateNoWindow = true
                         };
                         var program = new Program(startInfo);
@@ -151,7 +150,7 @@ namespace zFramework.Extension
                 Debug.LogError("makensis.exe 路径不可用，请检查！");
                 return false;
             }
-            if (nsiResolvers == null || nsiResolvers.Count == 0 || nsiResolvers.Count(v => !v.enable) == 0)
+            if (nsiResolvers == null || nsiResolvers.Count == 0 || nsiResolvers.Count(v => v.enable) == 0)
             {
                 Debug.LogError("nsiResolvers 为空或均未激活，请检查！");
                 return false;
