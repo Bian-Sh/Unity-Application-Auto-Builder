@@ -130,7 +130,7 @@ namespace zFramework.AppBuilder
             }
         }
 
-        static void BuildPlayer(AutoBuildConfiguration config)
+        static async void BuildPlayer(AutoBuildConfiguration config)
         {
             ValidateProfiles(config);
             var profiles = SortProfiles(config);
@@ -143,12 +143,14 @@ namespace zFramework.AppBuilder
                         .Select(v => v.task)
                         .Where(v => v.taskType == TaskType.PreBuild)
                          .OrderBy(v => v.priority);
+                    var args = string.Empty;
                     foreach (var item in tasks)
                     {
                         if (item)
                         {
                             Debug.Log($"执行 <color=green>{item.name}</color> PreBuild 任务");
-                            item.RunAsync(string.Empty); // 打包前任务不需要参数
+                            // 支持将上一个任务的结果传递给下一个任务
+                            args = await item.RunAsync(args);
                         }
                         else
                         {
