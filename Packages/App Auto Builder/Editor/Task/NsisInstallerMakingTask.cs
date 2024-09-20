@@ -1,8 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEngine;
 using zFramework.AppBuilder;
+using zFramework.AppBuilder.Utils;
 namespace zFramework.Extension
 {
     /*
@@ -32,7 +34,7 @@ namespace zFramework.Extension
             taskType = TaskType.PostBuild;
             Description = "使用 makensis.exe 和 .nsi 文件生成 Windows 系统下的 exe 安装程序。Generate a Windows executable installer using makensis.exe and .nsi files.";
         }
-        public override string Run(string output)
+        public override async Task<string> RunAsync(string output)
         {
             if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
             {
@@ -50,16 +52,21 @@ namespace zFramework.Extension
                 if (nsiResolver.compileNsiFile)
                 {
                     // 调用 makensis.exe 进行编译
-                    using var process = new System.Diagnostics.Process();
-                    process.StartInfo.FileName = exePath;
+                    var startInfo = new System.Diagnostics.ProcessStartInfo();
+                    startInfo.FileName = exePath;
                     // 使用 V4 log 等级
-                    process.StartInfo.Arguments = $"-V4 \"{nsifile}\"";
-                    process.StartInfo.UseShellExecute = false;
-                    process.StartInfo.CreateNoWindow = true;
+                    startInfo.Arguments = $"-V4 \"{nsifile}\"";
+                    startInfo.UseShellExecute = false;
+                     startInfo.CreateNoWindow = true;
+                    var program = new Program(startInfo);
 
-                    process.Start();
-                    process.WaitForExit();
-                    if (process.ExitCode != 0)
+                    program.OnStandardOutputReceived += OnStandardOutputReceived; 
+                    program.OnStandardErrorReceived += (line) =>
+                    {
+                        Debug.LogError(line);
+                    };
+                    await program.StartAsync();
+                    if (program.ExitCode != 0)
                     {
                         throw new Exception($"Nsis 编译错误!");
                     }
@@ -75,6 +82,21 @@ namespace zFramework.Extension
                 }
             }
             return string.Empty; // 无需反馈
+        }
+
+        // 当前下沉到的目录，当Log出现 “File: Descending to:” 字样时记录
+        private string location;
+        // 相对路径文件，当任务执行前记录
+        private readonly HashSet<string> files = new();
+
+        private void OnStandardOutputReceived(string obj)
+        {
+            //Progress Bar Report Here
+
+
+
+
+
         }
     }
 }
