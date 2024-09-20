@@ -10,6 +10,7 @@ namespace zFramework.AppBuilder
 {
     public class AutoBuilder : EditorWindow
     {
+        static EditorWindow window;
         [MenuItem("Tools/App Auto Builder")]
         public static void Init()
         {
@@ -21,7 +22,7 @@ namespace zFramework.AppBuilder
             var content = File.ReadAllText($"{root}/package.json");
             var version = JsonUtility.FromJson<Version>(content);
 
-            var window = GetWindow(typeof(AutoBuilder));
+            window = GetWindow(typeof(AutoBuilder));
             window.titleContent = new GUIContent($"App Auto Builder (v{version.version})");
             window.minSize = new Vector2(400, 500);
             window.Show();
@@ -63,7 +64,6 @@ namespace zFramework.AppBuilder
                         if (GUILayout.Button(build_content, GUILayout.Height(36), GUILayout.Width(120)))
                         {
                             BuildPlayer(config);
-                            ShowNotification(op_content);
                             GUIUtility.ExitGUI();
                         }
                         GUI.color = color;
@@ -147,6 +147,7 @@ namespace zFramework.AppBuilder
                     {
                         if (item)
                         {
+                            Debug.Log($"执行 <color=green>{item.name}</color> PreBuild 任务");
                             item.RunAsync(string.Empty); // 打包前任务不需要参数
                         }
                         else
@@ -197,7 +198,6 @@ namespace zFramework.AppBuilder
                     Debug.Log($"{profile.productName} 打包结果：{report.summary.result}");
                 }
             }
-            Debug.Log($" 打包结束，可通过控制台确认所有打包结果");
         }
 
         #region Assitant Fucntions
@@ -255,6 +255,7 @@ namespace zFramework.AppBuilder
                 {
                     if (item)
                     {
+                        Debug.Log($"执行<color=green>{item.name}</color> PostBuild 任务");
                         param = await item.RunAsync(param);
                     }
                     else
@@ -267,13 +268,16 @@ namespace zFramework.AppBuilder
             {
                 Debug.LogError($"{nameof(AutoBuilder)}:  找不到 {output} 的配置\nproductName = {productname}");
             }
+            // 打包结束 window 实例会被销毁，所以这里需要重新获取
+            window = GetWindow(typeof(AutoBuilder));
+            window.ShowNotification(new GUIContent("打包结束，请确认是否打包成功！"));
+            Debug.Log($" 打包结束，可通过控制台确认所有打包结果");
         }
         #endregion
 
         #region Private Fields
         static AutoBuildConfiguration config;
         GUIContent build_content = new GUIContent("打包", "点击将按上述配置依次进行打包！");
-        GUIContent op_content = new GUIContent("打包结束，请确认是否打包成功！");
         SerializedObject serializedObject;
         SerializedProperty appLocationPath;
         SerializedProperty profiles;
