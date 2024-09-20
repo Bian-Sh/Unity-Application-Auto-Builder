@@ -1,7 +1,11 @@
 using System;
+using System.Diagnostics;
 using System.IO;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
+using zFramework.AppBuilder.Utils;
+using Debug = UnityEngine.Debug;
 namespace zFramework.AppBuilder
 {
     //add a task to run a process, it is a simple task to run a process,without io redirect
@@ -22,7 +26,7 @@ namespace zFramework.AppBuilder
         {
             Description = "通过这个任务使用 Virbox 加密服务商提供的服务加密应用程序！Use this task to encrypt your application with the service provided by Virbox!";
         }
-        public override string Run(string output)
+        public override async Task<string> RunAsync(string output)
         {
             if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
             {
@@ -43,30 +47,31 @@ namespace zFramework.AppBuilder
             var ssp = Path.Combine(root, $"{foldNameOrigin}.ssp");
             BuildSSPContent(exePath, ssp, dlls, outputEncrypted, applicationName);
             // run virbox encrypt
-            var process = new System.Diagnostics.Process();
-            process.StartInfo.FileName = exePath;
+            var startInfo = new ProcessStartInfo();
+            startInfo.FileName = exePath;
             // 格式为 exepath originpath -u3d 
             //virboxprotector_con "E:\Unity\Temp\AppLocation\AppTwo" -u3d
-            process.StartInfo.Arguments = $"\"{fileInfo.DirectoryName}\" -u3d";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.CreateNoWindow = true;
-            process.Start();
-            process.WaitForExit();
-            var outputStr = process.StandardOutput.ReadToEnd();
-            var errorStr = process.StandardError.ReadToEnd();
-            process.Close();
-            if (!string.IsNullOrEmpty(errorStr))
+            startInfo.Arguments = $"\"{fileInfo.DirectoryName}\" -u3d";
+            startInfo.UseShellExecute = false;
+            startInfo.RedirectStandardOutput = true;
+            startInfo.RedirectStandardError = true;
+            startInfo.CreateNoWindow = true;
+            var program = new Program(startInfo);
+            program.OnStandardErrorReceived += (errorStr) =>
             {
-                var message = errorStr.Contains("A0000011") ? "请先登录 Virbox 账号!" : errorStr;
-                EditorUtility.DisplayDialog("Virbox 加密错误", message, "确定");
-                throw new Exception(errorStr);
-            }
-            else
+                if (!string.IsNullOrEmpty(errorStr))
+                {
+                    var message = errorStr.Contains("A0000011") ? "请先登录 Virbox 账号!" : errorStr;
+                    EditorUtility.DisplayDialog("Virbox 加密错误", message, "确定");
+                    throw new Exception(errorStr);
+                }
+            };
+            program.OnStandardOutputReceived += (line) =>
             {
-                Debug.Log($"Virbox 加密完成：\n{outputStr}");
-            }
+                Debug.Log(line);
+            };
+
+            await program.StartAsync();
             if (!keepSSP)
             {
                 File.Delete(ssp);
