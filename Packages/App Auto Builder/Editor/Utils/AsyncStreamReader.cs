@@ -28,7 +28,7 @@ namespace zFramework.AppBuilder.Utils
                         OnOutputDataReceived?.Invoke(line);
                     }
                 }
-                Thread.Sleep(10);
+                Thread.Sleep(1);
             }
         }
 
