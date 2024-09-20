@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using UnityEngine;
 
 namespace zFramework.AppBuilder
@@ -15,7 +16,7 @@ namespace zFramework.AppBuilder
         {
             Description = "在打包前后执行程序方便处理一些事务，应该会有用吧";
         }
-        public override string Run(string output)
+        public async override Task<string> RunAsync(string output)
         {
             if (!string.IsNullOrEmpty(exePath))
             {
@@ -23,7 +24,7 @@ namespace zFramework.AppBuilder
                 var process = System.Diagnostics.Process.Start(exePath, this.args);
                 if (waitForExit)
                 {
-                    process.WaitForExit();
+                    await Task.Run(process.WaitForExit);
                 }
             }
             return string.Empty;

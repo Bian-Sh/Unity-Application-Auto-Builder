@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -29,7 +30,7 @@ The FunctionExecute Task is a highly useful tool that allows you to modify data 
         }
 
 
-        public override string Run(string output)
+        public override Task<string> RunAsync(string output)
         {
             Debug.Log($"{nameof(FunctionExecuteTask)}: Run Function");
             //如果用户指定场景，我们加载场景中的函数
@@ -67,7 +68,7 @@ The FunctionExecute Task is a highly useful tool that allows you to modify data 
                     Debug.LogError($"{nameof(FunctionExecuteTask)}: 如果不指定场景，{function} 必须为静态方法!");
                 }
             }
-            return string.Empty;
+            return Task.FromResult(string.Empty);
         }
     }
 }

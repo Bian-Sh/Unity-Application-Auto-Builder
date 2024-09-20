@@ -147,7 +147,7 @@ namespace zFramework.AppBuilder
                     {
                         if (item)
                         {
-                            item.Run(string.Empty); // 打包前任务不需要参数
+                            item.RunAsync(string.Empty); // 打包前任务不需要参数
                         }
                         else
                         {
@@ -240,7 +240,7 @@ namespace zFramework.AppBuilder
 
         #region Callbacks 
         [PostProcessBuild]
-        static void OnPostProcessBuild(BuildTarget target, string output)
+        async static void OnPostProcessBuild(BuildTarget target, string output)
         {
             config ??= AutoBuildConfiguration.LoadOrCreate();
             var productname = Path.GetFileNameWithoutExtension(output);
@@ -255,7 +255,7 @@ namespace zFramework.AppBuilder
                 {
                     if (item)
                     {
-                        param = item.Run(param);
+                        param = await item.RunAsync(param);
                     }
                     else
                     {

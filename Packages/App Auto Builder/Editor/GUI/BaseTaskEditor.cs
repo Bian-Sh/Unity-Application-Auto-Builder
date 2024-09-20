@@ -25,20 +25,22 @@ namespace zFramework.AppBuilder
 
                 if (GUI.Button(buttonRect, GUIContent))
                 {
-                    var output = task.Run(arg);
-                    if (!string.IsNullOrEmpty(output))
+                    async void InternalTask()
                     {
-                        Debug.Log(output);
+                        var output = await task.RunAsync(arg);
+                        if (!string.IsNullOrEmpty(output))
+                        {
+                            Debug.Log(output);
+                        }
                     }
+                    InternalTask();
                 }
-
             }
-            DrawHelpbox();
+            DrawHelpbox(task);
         }
 
-        public void DrawHelpbox()
+        public void DrawHelpbox(BaseTask task)
         {
-            //draw a helpbox with the description
             if (!string.IsNullOrEmpty(task.Description))
             {
                 EditorGUILayout.HelpBox(task.Description, MessageType.Info);
