@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 using zFramework.AppBuilder;
 using zFramework.AppBuilder.Utils;
@@ -50,66 +51,97 @@ namespace zFramework.Extension
             {
                 throw new ArgumentNullException("output path is null or empty");
             }
-            foreach (var nsiResolver in nsiResolvers)
+
+            totalResolver = nsiResolvers.Count(v => v.enable && v.compileNsiFile);
+            currentResolver = 1;
+            try
             {
-                if (!nsiResolver.enable)
+                foreach (var nsiResolver in nsiResolvers)
                 {
-                    continue;
-                }
-                var nsifile = nsiResolver.Process(output);
-
-                if (nsiResolver.compileNsiFile)
-                {
-                    // 调用 makensis.exe 进行编译
-                    var startInfo = new System.Diagnostics.ProcessStartInfo
+                    if (!nsiResolver.enable)
                     {
-                        FileName = exePath,
-                        Arguments = $"-V4 \"{nsifile}\"", // 使用 V4 log 等级
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    };
-                    var program = new Program(startInfo);
-
-                    program.OnStandardOutputReceived += OnStandardOutputReceived;
-                    program.OnStandardErrorReceived += (line) =>
-                    {
-                        Debug.LogError(line);
-                    };
-                    await program.StartAsync();
-                    if (program.ExitCode != 0)
-                    {
-                        throw new Exception($"Nsis 编译错误!");
+                        continue;
                     }
-                    else
+                    var nsifile = nsiResolver.Process(output);
+
+                    if (nsiResolver.compileNsiFile)
                     {
-                        Debug.Log($"Nsis 编译完成!");
+                        currentInstallerName = Path.GetFileName(nsiResolver.outputFileName.Replace("${PRODUCT_VERSION}", nsiResolver.appVersion));
+
+                        // 读取 output 目录下的所有文件相对路径并存放到 files 中，以便于编译时计算进度
+                        files.Clear();
+                        count = 0;
+                        var root = new DirectoryInfo(output);
+                        foreach (var file in root.GetFiles("*", SearchOption.AllDirectories))
+                        {
+                            files.Add(file.FullName.Replace(root.FullName, string.Empty).TrimStart('\\'));
+                        }
+                        // 调用 makensis.exe 进行编译
+                        var startInfo = new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = exePath,
+                            Arguments = $"-V4 \"{nsifile}\"", // 使用 V4 log 等级
+                            UseShellExecute = false,
+                            CreateNoWindow = true
+                        };
+                        var program = new Program(startInfo);
+
+                        program.OnStandardOutputReceived += OnStandardOutputReceived;
+                        program.OnStandardErrorReceived += (line) =>
+                        {
+                            Debug.LogError(line);
+                        };
+                        await program.StartAsync();
+                        currentResolver++;
+                        if (program.ExitCode != 0)
+                        {
+                            throw new Exception($"Nsis 编译错误!");
+                        }
+                        else
+                        {
+                            Debug.Log($"{currentInstallerName} 编译完成!");
+                        }
+                    }
+
+                    if (!nsiResolver.keepNsiFile)
+                    {
+                        File.Delete(nsifile);
                     }
                 }
-
-                if (!nsiResolver.keepNsiFile)
-                {
-                    File.Delete(nsifile);
-                }
+                return string.Empty; // 无需反馈
             }
-            return string.Empty; // 无需反馈
+            catch (Exception)
+            {
+                throw;
+            }
+            finally
+            {
+                EditorUtility.ClearProgressBar();
+            }
         }
 
-        // 当前下沉到的目录，当Log出现 “File: Descending to:” 字样时记录
-        private string location;
         // 相对路径文件，当任务执行前记录
-        private readonly HashSet<string> files = new();
+        private readonly List<string> files = new();
+        private int count = 0;
+        private int totalResolver, currentResolver;
+        private string currentInstallerName;
+
         /// <summary>
         ///  Compile Nsi File log, 反馈编译进度
         /// </summary>
         /// <param name="obj"></param>
         private void OnStandardOutputReceived(string obj)
         {
-            //Progress Bar Report Here
-
-
-
-
-
+            // 如果是文件处理,规则是以 “File: "”开头
+            if (obj.StartsWith("File: \""))
+            {
+                var fileName = obj.Split('"')[1];
+                count++;
+                var step = (float)currentResolver / totalResolver;
+                var progress = (float)count / files.Count * step;
+                var globalProgress = Mathf.Clamp01((float)(currentResolver - 1) / totalResolver + progress);
+                EditorUtility.DisplayProgressBar($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ", $"({count + 1}/{files.Count} )完成压缩：{fileName} ", globalProgress);
+            }
         }
 
         public override bool Validate()
