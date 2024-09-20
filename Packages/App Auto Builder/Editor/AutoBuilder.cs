@@ -128,6 +128,18 @@ namespace zFramework.AppBuilder
                     throw new Exception($"{group.Key.productName} 配置重复，至少 SubLocation 要不同！");
                 }
             }
+
+            // 检查自定义任务校验函数是否通过
+            foreach (var profile in config.profiles)
+            {
+                foreach (var task in profile.customTask)
+                {
+                    if (task.enabled && !task.task.Validate())
+                    {
+                        throw new Exception($"{profile.productName} 的 {task.task.name} 任务校验失败！");
+                    }
+                }
+            }
         }
 
         static async void BuildPlayer(AutoBuildConfiguration config)

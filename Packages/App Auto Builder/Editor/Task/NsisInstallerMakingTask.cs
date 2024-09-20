@@ -111,5 +111,23 @@ namespace zFramework.Extension
 
 
         }
+
+        public override bool Validate()
+        {
+            if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
+            {
+                Debug.LogError("makensis.exe 路径不可用，请检查！");
+                return false;
+            }
+            if (nsiResolvers == null || nsiResolvers.Count == 0 || nsiResolvers.Count(v => !v.enable) == 0)
+            {
+                Debug.LogError("nsiResolvers 为空或均未激活，请检查！");
+                return false;
+            }
+            // todo，遍历该对象及所有能够绘制到 Inspector 的字段所标注的 RequredAttribute 
+            // 任意 RequredAttribute 检查不通过返回 false
+
+            return true;
+        }
     }
 }

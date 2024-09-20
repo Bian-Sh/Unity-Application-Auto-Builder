@@ -148,6 +148,16 @@ namespace zFramework.AppBuilder
             EditorUtility.RevealInFinder(ssp);
         }
 
+        public override bool Validate()
+        {
+            if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
+            {
+                Debug.LogError("Virbox 控制台程序路径不可用，请检查！");
+                return false;
+            }
+            return true;
+        }
+
         const string defaultssp = @"<?xml version=""1.0"" encoding=""utf-8""?>
 <ssprotect>
 	<base_info>
