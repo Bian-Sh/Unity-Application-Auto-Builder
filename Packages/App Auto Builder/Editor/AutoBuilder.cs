@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Callbacks;
 using UnityEngine;
@@ -44,36 +45,36 @@ namespace zFramework.AppBuilder
         {
             serializedObject.Update();
             InitProperties();
-            using (var scope = new EditorGUI.ChangeCheckScope())
+             using var disablescop = new EditorGUI.DisabledGroupScope(isBuilding);
+            using var scope = new EditorGUI.ChangeCheckScope();
+            using (new GUILayout.VerticalScope())
             {
-                using (new GUILayout.VerticalScope())
+                EditorGUILayout.PropertyField(appLocationPath);
+                GUILayout.Space(8);
+                using (var scroll = new GUILayout.ScrollViewScope(pos))
                 {
-                    EditorGUILayout.PropertyField(appLocationPath);
-                    GUILayout.Space(8);
-                    using (var scroll = new GUILayout.ScrollViewScope(pos))
-                    {
-                        EditorGUILayout.PropertyField(profiles);
-                        pos = scroll.scrollPosition;
-                    }
-                    EditorGUILayout.Space();
-                    using (var hr = new EditorGUILayout.HorizontalScope(GUI.skin.box))
-                    {
-                        GUILayout.FlexibleSpace();
-                        var color = GUI.color;
-                        GUI.color = new Color32(127, 214, 253, 255);
-                        if (GUILayout.Button(build_content, GUILayout.Height(36), GUILayout.Width(120)))
-                        {
-                            BuildPlayer(config);
-                            GUIUtility.ExitGUI();
-                        }
-                        GUI.color = color;
-                        GUILayout.FlexibleSpace();
-                    }
+                    EditorGUILayout.PropertyField(profiles);
+                    pos = scroll.scrollPosition;
                 }
-                if (scope.changed)
+                EditorGUILayout.Space();
+                using (var hr = new EditorGUILayout.HorizontalScope(GUI.skin.box))
                 {
-                    serializedObject.ApplyModifiedProperties();
+                    GUILayout.FlexibleSpace();
+                    var color = GUI.color;
+                    GUI.color = new Color32(127, 214, 253, 255);
+                    build_content.text = isBuilding ? "打包中..." : "打包";
+                    if (GUILayout.Button(build_content, GUILayout.Height(36), GUILayout.Width(120)))
+                    {
+                        BuildPlayer(config);
+                        GUIUtility.ExitGUI();
+                    }
+                    GUI.color = color;
+                    GUILayout.FlexibleSpace();
                 }
+            }
+            if (scope.changed)
+            {
+                serializedObject.ApplyModifiedProperties();
             }
         }
 
@@ -146,6 +147,7 @@ namespace zFramework.AppBuilder
         {
             ValidateProfiles(config);
             var profiles = SortProfiles(config);
+            isBuilding = true;
 
             foreach (var profile in profiles)
             {
@@ -254,7 +256,7 @@ namespace zFramework.AppBuilder
 
         #region Callbacks 
         [PostProcessBuild]
-        async static void OnPostProcessBuild(BuildTarget target, string output)
+        static async void OnPostProcessBuild(BuildTarget target, string output)
         {
             config ??= AutoBuildConfiguration.LoadOrCreate();
             var productname = Path.GetFileNameWithoutExtension(output);
@@ -286,6 +288,7 @@ namespace zFramework.AppBuilder
             window = GetWindow(typeof(AutoBuilder));
             window.ShowNotification(new GUIContent("打包结束，请确认是否打包成功！"));
             Debug.Log($" 打包结束，可通过控制台确认所有打包结果");
+            isBuilding = false;
         }
         #endregion
 
@@ -298,6 +301,7 @@ namespace zFramework.AppBuilder
         Vector2 pos = Vector2.zero;
         public const string fallbackPath = "Build";
         public static DirectoryInfo assetsDirInfo;
+        private static bool isBuilding;
         #endregion
 
         #region Assistance Type
