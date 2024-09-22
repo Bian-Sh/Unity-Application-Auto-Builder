@@ -28,6 +28,14 @@
    
    文件在这里(Files are here)：([Packages/App Auto Builder/Editor/AutoBuilder.cs](https://github.com/Bian-Sh/Unity-Application-Auto-Builder/blob/af093ebb1424186ac0f6794e151aa7057f61ac65/Packages/App%20Auto%20Builder/Editor/AutoBuilder.cs#L161))
 
+4. 支持通过 Virbox Task 对打包后的应用进行加密；
+     Support encrypting the packaged application through Virbox Task
+
+5. 支持通过 Nsis Task 对打包后的应用进行安装包制作；
+	 Support making installation package for the packaged application through Nsis Task
+
+
+
 # 界面（Interface）：
 
 ![](doc/interface.png)
@@ -37,6 +45,11 @@
 | ![](doc/FuncExecuteTask.png)                                                               | ![](doc/RunProcessTask.png)                                                                                                                                            |
 | 通过这个 task ，你可以写逻辑在打包前后对 scene 内的任意数据进行修改                                                   | 通过这个 Task，你可以在构建前、后运行一个应用程序，可以设置是否卡主线程，方便控制打包流程                                                                                                                        |
 | With this task, you can write logic to modify any data in the scene before and after build | With this Task, you can run an application before and after the build, and you can set whether to block the main thread to facilitate the control of the build process |
+| Virbox Task| Nsis Task |
+| ![](doc/VirboxTask.png)                                                               | ![](doc/NsisTask.png)                                                                                                                                            |
+|通过这个 Task 实现对打包的应用加密| 通过这个 Task，对打包后的应用进行安装包的制作   |
+|With this Task, the packaged application is encrypted|With this Task, the packaged application is made into an installation package|
+
 
 # 使用（Usage）：
 

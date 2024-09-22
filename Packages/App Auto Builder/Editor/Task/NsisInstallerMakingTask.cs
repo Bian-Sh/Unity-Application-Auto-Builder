@@ -49,7 +49,6 @@ namespace zFramework.Extension
             {
                 throw new ArgumentNullException("output path is null or empty");
             }
-
             totalResolver = nsiResolvers.Count(v => v.enable);
             currentResolver = 1;
             try
@@ -112,7 +111,7 @@ namespace zFramework.Extension
             }
             finally
             {
-                //EditorUtility.ClearProgressBar();
+                EditorUtility.ClearProgressBar();
                 // ProgressBarWindow.ClearProgressBar();
             }
         }
@@ -137,7 +136,7 @@ namespace zFramework.Extension
                 var step = (float)currentResolver / totalResolver;
                 var progress = (float)count / files.Count * step;
                 var globalProgress = Mathf.Clamp01((float)(currentResolver - 1) / totalResolver + progress);
-                //EditorUtility.DisplayProgressBar($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ", $"({count }/{files.Count} )完成压缩：{fileName} ", globalProgress);
+                EditorUtility.DisplayProgressBar($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ", $"({count }/{files.Count} )完成压缩：{fileName} ", globalProgress);
                 //ProgressBarWindow.ShowProgressBar($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ", $"({count }/{files.Count} )完成压缩：{fileName} ", globalProgress);
                 Progress.Report(progressid, (float)count / files.Count, $"({count}/{files.Count} )完成压缩：{fileName} ");
             }
