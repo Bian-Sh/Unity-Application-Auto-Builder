@@ -1,49 +1,42 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace zFramework.AppBuilder.Utils
 {
-    internal class AsyncStreamReader : IDisposable 
+    internal class AsyncStreamReader : IDisposable
     {
-        private readonly Thread thread;
-        internal event Action<string> OnOutputDataReceived;
         private readonly StreamReader reader;
+        private readonly CancellationTokenSource cts = new();
+        public event Action<string> OnOutputDataReceived;
 
         public AsyncStreamReader(StreamReader reader)
         {
             this.reader = reader;
-            thread = new Thread(ReceivingDataFunc);
-        }
-
-        private void ReceivingDataFunc()
-        {
-            while ( reader?.BaseStream != null)
-            {
-                lock (reader)
-                {
-                    var line = reader.ReadLine();
-                    if (!string.IsNullOrEmpty(line))
-                    {
-                        OnOutputDataReceived?.Invoke(line);
-                    }
-                }
-                Thread.Sleep(1);
-            }
         }
 
         public void Start()
         {
-            thread.Start();
+            Task.Run(ReceivingDataFunc);
+        }
+
+        private async Task ReceivingDataFunc()
+        {
+            while (!cts.Token.IsCancellationRequested)
+            {
+                var line = await reader.ReadLineAsync();
+                if (!string.IsNullOrEmpty(line))
+                {
+                    OnOutputDataReceived?.Invoke(line);
+                }
+            }
         }
 
         public void Dispose()
         {
-            lock (reader)
-            {
-                reader.Dispose();
-            }
-            thread.Join();
+            cts.Cancel();
+            reader.Dispose();
         }
     }
 

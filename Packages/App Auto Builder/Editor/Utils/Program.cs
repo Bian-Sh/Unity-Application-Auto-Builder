@@ -26,29 +26,28 @@ namespace zFramework.AppBuilder.Utils
         public Program(ProcessStartInfo si) : this()
         {
             _process.StartInfo = si;
+            _process.StartInfo.RedirectStandardError = true;
+            _process.StartInfo.RedirectStandardOutput = true;
+            _process.StartInfo.UseShellExecute = false;
+            //Encoding  is GB2312
+            _process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding("GB2312");
+            _process.StartInfo.StandardErrorEncoding = System.Text.Encoding.GetEncoding("GB2312");
         }
 
         public async Task StartAsync()
         {
-            _process.StartInfo.RedirectStandardError = true;
-            _process.StartInfo.RedirectStandardOutput = true;
-            _process.StartInfo.UseShellExecute = false;
-
-            //Encoding  is GB2312
-            _process.StartInfo.StandardOutputEncoding = System.Text.Encoding.GetEncoding("GB2312");
-            _process.StartInfo.StandardErrorEncoding = System.Text.Encoding.GetEncoding("GB2312");
-
-            _process.Start();
-
-            // Start reading the output stream 
-            using var outputReader = new AsyncStreamReader(_process.StandardOutput);
-            using var errorReader = new AsyncStreamReader(_process.StandardError);
-            outputReader.OnOutputDataReceived +=result => context.Post(_ => OnStandardOutputReceived?.Invoke(result), null);
-            errorReader.OnOutputDataReceived += result => context.Post(_ => OnStandardErrorReceived?.Invoke(result), null);
-            outputReader.Start();
-            errorReader.Start();
-
-            await Task.Run(WaitForExit);
+            void RunProcess()
+            {
+                _process.Start();
+                using var outputReader = new AsyncStreamReader(_process.StandardOutput);
+                using var errorReader = new AsyncStreamReader(_process.StandardError);
+                outputReader.OnOutputDataReceived += result => context.Post(_ => OnStandardOutputReceived?.Invoke(result), null);
+                errorReader.OnOutputDataReceived += result => context.Post(_ => OnStandardErrorReceived?.Invoke(result), null);
+                outputReader.Start();
+                errorReader.Start();
+                WaitForExit();
+            }
+            await Task.Run(RunProcess);
         }
 
         public void Dispose()

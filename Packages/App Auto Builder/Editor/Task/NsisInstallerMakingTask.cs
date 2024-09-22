@@ -67,6 +67,7 @@ namespace zFramework.Extension
                     if (nsiResolver.compileNsiFile)
                     {
                         currentInstallerName = Path.GetFileName(nsiResolver.outputFileName.Replace("${PRODUCT_VERSION}", nsiResolver.appVersion));
+                        progressid = Progress.Start($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ");
 
                         // 读取 output 目录下的所有文件相对路径并存放到 files 中，以便于编译时计算进度
                         files.Clear();
@@ -91,6 +92,8 @@ namespace zFramework.Extension
                             Debug.LogError(line);
                         };
                         await program.StartAsync();
+                        Progress.Remove(progressid);
+
                         currentResolver++;
                         if (program.ExitCode != 0)
                         {
@@ -115,14 +118,15 @@ namespace zFramework.Extension
             }
             finally
             {
-                EditorUtility.ClearProgressBar();
+                //EditorUtility.ClearProgressBar();
+                // ProgressBarWindow.ClearProgressBar();
             }
         }
 
         // 相对路径文件，当任务执行前记录
         private readonly List<string> files = new();
         private int count = 0;
-        private int totalResolver, currentResolver;
+        private int totalResolver, currentResolver, progressid;
         private string currentInstallerName;
 
         /// <summary>
@@ -139,7 +143,9 @@ namespace zFramework.Extension
                 var step = (float)currentResolver / totalResolver;
                 var progress = (float)count / files.Count * step;
                 var globalProgress = Mathf.Clamp01((float)(currentResolver - 1) / totalResolver + progress);
-                EditorUtility.DisplayProgressBar($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ", $"({count + 1}/{files.Count} )完成压缩：{fileName} ", globalProgress);
+                //EditorUtility.DisplayProgressBar($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ", $"({count }/{files.Count} )完成压缩：{fileName} ", globalProgress);
+                //ProgressBarWindow.ShowProgressBar($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ", $"({count }/{files.Count} )完成压缩：{fileName} ", globalProgress);
+                Progress.Report(progressid, (float)count / files.Count, $"({count}/{files.Count} )完成压缩：{fileName} ");
             }
         }
 

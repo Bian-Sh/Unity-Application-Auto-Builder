@@ -96,7 +96,7 @@ namespace zFramework.AppBuilder
 
         private void OnStandardOutputReceived(string obj)
         {
-            Debug.Log(obj);
+            //Debug.Log(obj);
         }
 
         public override bool Validate()
