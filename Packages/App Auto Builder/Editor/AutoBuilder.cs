@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using UnityEditor;
 using UnityEditor.Callbacks;
+using UnityEditor.Presets;
 using UnityEngine;
 
 namespace zFramework.AppBuilder
@@ -41,11 +41,23 @@ namespace zFramework.AppBuilder
             appLocationPath = serializedObject.FindProperty("appLocationPath");
             profiles = serializedObject.FindProperty("profiles");
         }
+
         void OnGUI()
         {
             serializedObject.Update();
             InitProperties();
-             using var disablescop = new EditorGUI.DisabledGroupScope(isBuilding);
+            var rect_settings = new Rect(position.width-18, 2, 20, 20);
+
+            // draw settings entry on the right of this window
+            var icon = EditorGUIUtility.IconContent("d_Settings");
+            var style = GUI.skin.GetStyle("IconButton");
+            var content = new GUIContent(icon.image, "Open settiings");
+            if (GUI.Button(rect_settings, content, style))
+            {
+                SettingsService.OpenProjectSettings("Project/App Auto Builder");
+            }
+
+            using var disablescop = new EditorGUI.DisabledGroupScope(isBuilding);
             using var scope = new EditorGUI.ChangeCheckScope();
             using (new GUILayout.VerticalScope())
             {

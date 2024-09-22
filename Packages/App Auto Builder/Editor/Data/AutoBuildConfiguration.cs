@@ -10,6 +10,7 @@ namespace zFramework.AppBuilder
         public string appLocationPath;
         [Header("软件出包配置")]
         public List<BuildProfiles> profiles;
+
         public static AutoBuildConfiguration LoadOrCreate()
         {
             var file = "Assets/AutoBuilder/AutoBuildConfiguration.asset";
