@@ -16,51 +16,57 @@ namespace zFramework.AppBuilder
         [Header("virbox 控制台程序路径：")]
         public string exePath;
 
-        [Header("保留 .ssp 文件？")]
-        public bool keepSSP = false;
-
         [Header("需要被加密的 DLL 文件：")]
         public string[] dlls = new[] { "Assembly-CSharp.dll" };
 
         private void OnEnable()
         {
+            taskType = TaskType.PostBuild;
             Description = "通过这个任务使用 Virbox 加密服务商提供的服务加密应用程序！Use this task to encrypt your application with the service provided by Virbox!";
         }
+        
+        //output = E:\Unity\Temp\AppLocation\AppTwo\AppTheSameNameIsOk.exe
         public override async Task<string> RunAsync(string output)
         {
             if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
             {
                 throw new ArgumentNullException("Virbox 控制台程序路径不可用，请检查！");
             }
-            if (string.IsNullOrEmpty(output))
+            if (string.IsNullOrEmpty(output) || !File.Exists(output))
             {
-                throw new ArgumentNullException("output path is null or empty");
+                throw new ArgumentNullException("exe file is null or empty or file is not exists!");
             }
-
-            //output = E:\Unity\Temp\AppLocation\AppTwo\AppTheSameNameIsOk.exe
             var applicationName = Path.GetFileNameWithoutExtension(output);
 
             var fileInfo = new FileInfo(output);
             var foldNameOrigin = fileInfo.Directory.Name;
             var root = fileInfo.Directory.Parent.FullName;
-            var outputEncrypted = foldNameOrigin + "_Protected";
-            var ssp = Path.Combine(root, $"{foldNameOrigin}.ssp");
-            BuildSSPContent(exePath, ssp, dlls, outputEncrypted, applicationName);
+            var log = Path.Combine(root, $"{foldNameOrigin}.log");
 
             try
             {
                 //多出来的2个分别是：UnityPlayer.dll、mono-2.0-bdwgc.dll，它们默认会被处理
                 // 其他 asset 资产暂不做处理
-                totalHandledFiles = dlls.Length + 2;
-                count = 0;
+                EditorUtility.DisplayProgressBar("Virbox 加密中，请等待...", "", 0.8F);
+
+                // 装载要加密的 dll
+                var asmArgs = "-asm \"";
+                for (int i = 0; i < dlls.Length; i++)
+                {
+                    asmArgs += $"{applicationName}_Data/Managed/{dlls[i]};";
+                }
+                asmArgs = asmArgs.TrimEnd(';') + "\"";
+                // 命令行参数：inputDir -u3d --res-enc=1 -asm "Assembly-CSharp.dll;Assembly-CSharp-firstpass.dll" 
+                // 如果不指定 outputDir，则默认为 inputDir 同级目录, 且文件名后面会加上 _protected
+                var combinedArgs = $"\"{fileInfo.DirectoryName}\" -u3d --res-enc=1 {asmArgs}";
+
+                File.WriteAllText(log, combinedArgs);
 
                 // run virbox encrypt
                 var startInfo = new ProcessStartInfo
                 {
                     FileName = exePath,
-                    // 格式为 exepath originpath -u3d 
-                    //virboxprotector_con "E:\Unity\Temp\AppLocation\AppTwo" -u3d
-                    Arguments = $"\"{fileInfo.DirectoryName}\" -u3d",
+                    Arguments = combinedArgs,
                     CreateNoWindow = true
                 };
                 var program = new Program(startInfo);
@@ -75,11 +81,8 @@ namespace zFramework.AppBuilder
                 };
                 program.OnStandardOutputReceived += OnStandardOutputReceived;
                 await program.StartAsync();
-                if (!keepSSP)
-                {
-                    File.Delete(ssp);
-                }
-                return $"{root}/{outputEncrypted}";
+                Debug.Log("Virbox 加密完成！");
+                return $"{root}/{foldNameOrigin}_protected";
             }
             catch (Exception)
             {
@@ -91,62 +94,9 @@ namespace zFramework.AppBuilder
             }
         }
 
-        // Report Progress
-        private int totalHandledFiles = 0;
-        private int count = 0;
         private void OnStandardOutputReceived(string obj)
         {
             Debug.Log(obj);
-
-            if (obj.StartsWith("Protect assembly ", StringComparison.CurrentCultureIgnoreCase)
-                || obj.StartsWith("protect file ", StringComparison.CurrentCultureIgnoreCase))
-            {
-                count++;
-                EditorUtility.DisplayProgressBar("Virbox 加密中...", obj, (float)count / totalHandledFiles);
-            }
-        }
-
-        private void BuildSSPContent(string exe, string ssp, string[] dlls, string saveto, string appName)
-        {
-            //获取 exe 的名称和版本信息 ：Virbox Protector 3 Trial (v3.4.0.20888)
-            using Process process = new();
-            process.StartInfo.FileName = exe;
-            process.StartInfo.Arguments = "-?";
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardOutput = true;
-            process.StartInfo.CreateNoWindow = true;
-            process.Start();
-            process.WaitForExit();
-            var outputStr = process.StandardOutput.ReadToEnd();
-            process.Close();
-            var lines = outputStr.Split('\n');
-            var line = lines[0];
-            var arr = line.Split('(', ')');
-            var exeName = arr[0].Trim();
-            var exeVersion = arr[1].TrimStart('v');
-
-            using var fs = new FileStream(ssp, FileMode.Create);
-            using var sw = new StreamWriter(fs);
-            var xmldoc = new System.Xml.XmlDocument();
-            xmldoc.LoadXml(defaultssp);
-            // 更新Virbox 名称及版本号
-            xmldoc.SelectSingleNode("/ssprotect/base_info/app").InnerText = exeName;
-            xmldoc.SelectSingleNode("/ssprotect/base_info/version").InnerText = exeVersion;
-
-            //更新加密后的文件路径
-            xmldoc.SelectSingleNode("/ssprotect/file/path").InnerText = saveto;
-            // 装载要加密的 dll
-            for (int i = 0; i < dlls.Length; i++)
-            {
-                var node = xmldoc.SelectSingleNode($"/ssprotect/assembly/file_{i + 1}");
-                if (node == null)
-                {
-                    node = xmldoc.CreateElement($"file_{i + 1}");
-                    xmldoc.SelectSingleNode("/ssprotect/assembly").AppendChild(node);
-                }
-                node.InnerText = $"{appName}_Data/Managed/{dlls[i]}";
-            }
-            xmldoc.Save(sw);
         }
 
         public override bool Validate()
@@ -158,28 +108,5 @@ namespace zFramework.AppBuilder
             }
             return true;
         }
-        const string defaultssp = @"<?xml version=""1.0"" encoding=""utf-8""?>
-<ssprotect>
-	<base_info>
-		<app>Virbox Protector 3 Trial</app>
-		<version>3.4.0.20888</version>
-	</base_info>
-	<option>
-		<anti_debugging>1</anti_debugging>
-	</option>
-	<file>
-		<path>AppTwo_protected</path>
-	</file>
-	<sign />
-	<function />
-	<assembly>
-	</assembly>
-	<res_enc>
-		<enable>0</enable>
-		<file>
-		</file>
-	</res_enc>
-</ssprotect>
-";
     }
 }
