@@ -16,6 +16,7 @@ namespace zFramework.Extension
         public string startMenuFolder;
         public string appInstallDir;
         public string outputFileName;
+        public string installerOutputPath;
         [Header("版权信息：")]
         public string publisher;
         public string website;
@@ -27,21 +28,9 @@ namespace zFramework.Extension
         [Header("快捷方式：")]
         public Shotcut[] shotcuts;
 
-        [Header("文件输出相关：")]
-        [Header("保留 .nsi 脚本?")]
-        public bool keepNsiFile = false;
-        [Header("编译 .nsi 脚本？")]
-        public bool compileNsiFile = true;
-        public string nsiOutputPath;
-        public string installerOutputPath;
 
         public string Process(string output)
         {
-            if (!Directory.Exists(nsiOutputPath))
-            {
-                Directory.CreateDirectory(nsiOutputPath);
-            }
-
             string exeEntry = Directory.GetFiles(output, "*.exe").Where(x => !x.StartsWith("UnityCrashHandler")).FirstOrDefault();
             if (string.IsNullOrEmpty(exeEntry))
             {
@@ -51,7 +40,8 @@ namespace zFramework.Extension
             var outputFileName = this.outputFileName.Replace("${PRODUCT_VERSION}", appVersion);
 
             var outputfile = Path.Combine(installerOutputPath, outputFileName);
-            string nsiFilePath = Path.Combine(nsiOutputPath, $"{outputFileName[..^4]}.nsi");
+            // .nsi 文件存放在与输出目录同级目录下
+            string nsiFilePath = Path.Combine(installerOutputPath, $"{outputFileName[..^4]}.nsi");
 
             string exeName = Path.GetFileName(exeEntry);
             var nsiBuilder = new StringBuilder(DefaultNsisScript);

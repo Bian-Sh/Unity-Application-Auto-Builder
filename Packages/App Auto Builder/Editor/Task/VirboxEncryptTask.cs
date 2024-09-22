@@ -13,12 +13,8 @@ namespace zFramework.AppBuilder
     [CreateAssetMenu(fileName = "Virbox Encrypt Task", menuName = "Auto Builder/Task/Virbox Encrypt Task")]
     public class VirboxEncryptTask : BaseTask
     {
-        [Header("virbox 控制台程序路径：")]
-        public string exePath;
-
         [Header("需要被加密的 DLL 文件：")]
         public string[] dlls = new[] { "Assembly-CSharp.dll" };
-
         private void OnEnable()
         {
             taskType = TaskType.PostBuild;
@@ -28,8 +24,11 @@ namespace zFramework.AppBuilder
         //output = E:\Unity\Temp\AppLocation\AppTwo\AppTheSameNameIsOk.exe
         public override async Task<string> RunAsync(string output)
         {
+            var exePath = AppAutoBuilderSettingProvider.Settings.virboxExePath;
             if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
             {
+                // Show Settings
+                AppAutoBuilderSettingProvider.ShowSettings();
                 throw new ArgumentNullException("Virbox 控制台程序路径不可用，请检查！");
             }
             if (string.IsNullOrEmpty(output) || !File.Exists(output))
@@ -101,6 +100,7 @@ namespace zFramework.AppBuilder
 
         public override bool Validate()
         {
+            var exePath = AppAutoBuilderSettingProvider.Settings.virboxExePath;
             if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
             {
                 Debug.LogError("Virbox 控制台程序路径不可用，请检查！");

@@ -25,9 +25,6 @@ namespace zFramework.Extension
     [CreateAssetMenu(fileName = "Nsis Installer Making Task", menuName = "Auto Builder/Task/Nsis Installer Making Task")]
     public class NsisInstallerMakingTask : BaseTask
     {
-        [Header("makensis.exe 路径：")]
-        public string exePath;
-
         [Header("Nsi 列表："), Tooltip("使用这种方式可以实现一个应用输出多个不同名称的安装包")]
         public List<NsiResolver> nsiResolvers;
 
@@ -38,6 +35,7 @@ namespace zFramework.Extension
         }
         public override async Task<string> RunAsync(string output)
         {
+            var exePath = AppAutoBuilderSettingProvider.Settings.nsisExePath;
             if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
             {
                 throw new ArgumentNullException("makensis.exe 路径不可用，请检查！");
@@ -52,7 +50,7 @@ namespace zFramework.Extension
                 throw new ArgumentNullException("output path is null or empty");
             }
 
-            totalResolver = nsiResolvers.Count(v => v.enable && v.compileNsiFile);
+            totalResolver = nsiResolvers.Count(v => v.enable);
             currentResolver = 1;
             try
             {
@@ -64,48 +62,44 @@ namespace zFramework.Extension
                     }
                     var nsifile = nsiResolver.Process(output);
 
-                    if (nsiResolver.compileNsiFile)
+                    currentInstallerName = Path.GetFileName(nsiResolver.outputFileName.Replace("${PRODUCT_VERSION}", nsiResolver.appVersion));
+                    progressid = Progress.Start($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ");
+
+                    // 读取 output 目录下的所有文件相对路径并存放到 files 中，以便于编译时计算进度
+                    files.Clear();
+                    count = 0;
+                    var root = new DirectoryInfo(output);
+                    foreach (var file in root.GetFiles("*", SearchOption.AllDirectories))
                     {
-                        currentInstallerName = Path.GetFileName(nsiResolver.outputFileName.Replace("${PRODUCT_VERSION}", nsiResolver.appVersion));
-                        progressid = Progress.Start($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ");
-
-                        // 读取 output 目录下的所有文件相对路径并存放到 files 中，以便于编译时计算进度
-                        files.Clear();
-                        count = 0;
-                        var root = new DirectoryInfo(output);
-                        foreach (var file in root.GetFiles("*", SearchOption.AllDirectories))
-                        {
-                            files.Add(file.FullName.Replace(root.FullName, string.Empty).TrimStart('\\'));
-                        }
-                        // 调用 makensis.exe 进行编译
-                        var startInfo = new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = exePath,
-                            Arguments = $"-V4 \"{nsifile}\"", // 使用 V4 log 等级
-                            CreateNoWindow = true
-                        };
-                        var program = new Program(startInfo);
-
-                        program.OnStandardOutputReceived += OnStandardOutputReceived;
-                        program.OnStandardErrorReceived += (line) =>
-                        {
-                            Debug.LogError(line);
-                        };
-                        await program.StartAsync();
-                        Progress.Remove(progressid);
-
-                        currentResolver++;
-                        if (program.ExitCode != 0)
-                        {
-                            throw new Exception($"Nsis 编译错误!");
-                        }
-                        else
-                        {
-                            Debug.Log($"{currentInstallerName} 编译完成!");
-                        }
+                        files.Add(file.FullName.Replace(root.FullName, string.Empty).TrimStart('\\'));
                     }
+                    // 调用 makensis.exe 进行编译
+                    var startInfo = new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = exePath,
+                        Arguments = $"-V4 \"{nsifile}\"", // 使用 V4 log 等级
+                        CreateNoWindow = true
+                    };
+                    var program = new Program(startInfo);
 
-                    if (!nsiResolver.keepNsiFile)
+                    program.OnStandardOutputReceived += OnStandardOutputReceived;
+                    program.OnStandardErrorReceived += (line) =>
+                    {
+                        Debug.LogError(line);
+                    };
+                    await program.StartAsync();
+                    Progress.Remove(progressid);
+
+                    currentResolver++;
+                    if (program.ExitCode != 0)
+                    {
+                        throw new Exception($"Nsis 编译错误!");
+                    }
+                    else
+                    {
+                        Debug.Log($"{currentInstallerName} 编译完成!");
+                    }
+                    if (!AppAutoBuilderSettingProvider.Settings.shouldKeepNsisFile)
                     {
                         File.Delete(nsifile);
                     }
@@ -151,6 +145,7 @@ namespace zFramework.Extension
 
         public override bool Validate()
         {
+            var exePath = AppAutoBuilderSettingProvider.Settings.nsisExePath;
             if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
             {
                 Debug.LogError("makensis.exe 路径不可用，请检查！");
