@@ -28,7 +28,8 @@ namespace zFramework.AppBuilder
                 Undo.RecordObject(m_Target, "Cancel Preset");
                 m_InitialValue.ApplyTo(m_Target);
             }
-           provider.Repaint();
+            provider.SaveSettings();
+            provider.Repaint();
         }
         public override void OnSelectionClosed(Preset selection)
         {

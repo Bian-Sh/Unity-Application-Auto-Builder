@@ -5,6 +5,8 @@ using UnityEditorInternal;
 using UnityEngine.UIElements;
 using UnityEditor.Presets;
 using static UnityEngine.GraphicsBuffer;
+using System;
+using System.Runtime.InteropServices;
 
 namespace zFramework.AppBuilder
 {
@@ -141,7 +143,7 @@ Unity one-click packaging tool, suitable for scenarios where the packaging scene
         /// <summary>
         /// Loads the settings from the settings file or creates new default settings if the file doesn't exist.
         /// </summary>
-        static private void LoadSettings()
+        private static void LoadSettings()
         {
             string dir = Path.GetDirectoryName(SettingsPath);
 
@@ -165,14 +167,14 @@ Unity one-click packaging tool, suitable for scenarios where the packaging scene
             else
             {
                 settings = ScriptableObject.CreateInstance<AppAutoBuilderSettings>();
-                SaveSettings();
+                InternalEditorUtility.SaveToSerializedFileAndForget(new[] { settings }, SettingsPath, true);
             }
         }
 
         /// <summary>
         /// Saves the settings to the settings file.
         /// </summary>
-        static private void SaveSettings() => InternalEditorUtility.SaveToSerializedFileAndForget(new[] { settings }, SettingsPath, true);
+        public void SaveSettings() => InternalEditorUtility.SaveToSerializedFileAndForget(new[] { settings }, SettingsPath, true);
 
         /// <summary>
         /// Gets the ExportProjectToZip settings (loads them if they are not loaded yet).
@@ -194,6 +196,11 @@ Unity one-click packaging tool, suitable for scenarios where the packaging scene
         static public SettingsProvider CreateSettingsProvider()
         {
             return new AppAutoBuilderSettingProvider();
+        }
+
+        internal static void ShowSettings()
+        {
+            SettingsService.OpenProjectSettings(PATH);
         }
 
         readonly GUIContent openfiledilog = new("···", "Open File Dialog");
