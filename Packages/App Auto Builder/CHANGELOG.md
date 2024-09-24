@@ -5,13 +5,23 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2024-09-25
+
+### New Feature
+
+* 新增通过控制台超链接定位文件和文件夹的功能，方便查看任务输出成果
+
 ## [2.0.1] - 2024-09-24
+
 ### Fixed
+
 * 修复了 .nsi 文件抛出 No Directory 的异常
 * 修复了 SettingProviders 有些时候会报null 的问题
 
 ## [2.0.0] - 2024-09-22
+
 ### New Features
+
 * 新增 Virbox Task，支持使用 Virbox 对 exe 输出进行加密（Mono）
 * 新增 Nsis Tas，支持使用 Nsis 将 exe 输出包打包成 Windows 安装包
 * 新增 SettingProvider，支持在 Unity ProjectSettings 中配置 Virbox 和 Nsis 的路径
@@ -24,9 +34,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 * 支持 Task 返回值并传递给下一个 Task
 * Task 的测试支持传递参数
 
-
 ## [1.3.0] - 2023-10-16
+
 ### Changed
+
 * 将工程内部的打包路径存为相对路径，方便工程迁移，多人协作
 * 将打包平台的选择内置到 BuildProfiles 中，这样就可以一次打多个平台的 app 了
 
@@ -54,7 +65,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ## [1.0.0] - 2023-05-14
 
 * 首次发布
-
 
 ### Changed
 
