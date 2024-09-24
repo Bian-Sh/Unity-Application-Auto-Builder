@@ -40,7 +40,6 @@ namespace zFramework.AppBuilder
             var fileInfo = new FileInfo(output);
             var foldNameOrigin = fileInfo.Directory.Name;
             var root = fileInfo.Directory.Parent.FullName;
-            var log = Path.Combine(root, $"{foldNameOrigin}.log");
 
             try
             {
@@ -58,8 +57,6 @@ namespace zFramework.AppBuilder
                 // 命令行参数：inputDir -u3d --res-enc=1 -asm "Assembly-CSharp.dll;Assembly-CSharp-firstpass.dll" 
                 // 如果不指定 outputDir，则默认为 inputDir 同级目录, 且文件名后面会加上 _protected
                 var combinedArgs = $"\"{fileInfo.DirectoryName}\" -u3d --res-enc=1 {asmArgs}";
-
-                File.WriteAllText(log, combinedArgs);
 
                 // run virbox encrypt
                 var startInfo = new ProcessStartInfo
