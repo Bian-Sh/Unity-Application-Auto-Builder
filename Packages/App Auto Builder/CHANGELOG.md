@@ -5,7 +5,12 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - 2023-10-17
+## [2.0.1] - 2024-09-24
+### Fixed
+* 修复了 .nsi 文件抛出 No Directory 的异常
+* 修复了 SettingProviders 有些时候会报null 的问题
+
+## [2.0.0] - 2024-09-22
 ### New Features
 * 新增 Virbox Task，支持使用 Virbox 对 exe 输出进行加密（Mono）
 * 新增 Nsis Tas，支持使用 Nsis 将 exe 输出包打包成 Windows 安装包
