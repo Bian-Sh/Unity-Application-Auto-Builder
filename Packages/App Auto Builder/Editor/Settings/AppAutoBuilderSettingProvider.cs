@@ -78,6 +78,10 @@ Unity one-click packaging tool, suitable for scenarios where the packaging scene
         public override void OnGUI(string searchContext)
         {
             GUILayout.Space(10);
+            if (serializedObject?.targetObject == null)
+            {
+                serializedObject = new SerializedObject(Settings);
+            }
             // draw the settings GUI
             using var changescope = new EditorGUI.ChangeCheckScope();
             serializedObject.Update();
