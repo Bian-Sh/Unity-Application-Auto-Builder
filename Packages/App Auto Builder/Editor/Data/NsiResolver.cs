@@ -36,6 +36,12 @@ namespace zFramework.Extension
             {
                 throw new FileNotFoundException("Can not find exe file in output folder");
             }
+
+            if (Directory.Exists(installerOutputPath) == false)
+            {
+                Directory.CreateDirectory(installerOutputPath);
+            }
+
             appInstallDir = appInstallDir.Replace("/", "\\");
             var outputFileName = this.outputFileName.Replace("${PRODUCT_VERSION}", appVersion);
 
