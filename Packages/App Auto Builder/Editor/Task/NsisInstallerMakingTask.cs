@@ -87,6 +87,10 @@ namespace zFramework.Extension
                         Debug.LogError(line);
                     };
                     await program.StartAsync();
+
+                    // 编译完成后，输出编译结果,用户可以在控制台通过点击路径定位文件
+                    ReportResult(nsiResolver.OutputFileLocation, () => $"安装包 {currentInstallerName} 编译完成，路径：");
+
                     Progress.Remove(progressid);
 
                     currentResolver++;

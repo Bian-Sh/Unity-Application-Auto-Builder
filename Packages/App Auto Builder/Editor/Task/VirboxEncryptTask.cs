@@ -1,3 +1,4 @@
+using GluonGui.WorkspaceWindow.Views.WorkspaceExplorer.Explorer;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -20,7 +21,7 @@ namespace zFramework.AppBuilder
             taskType = TaskType.PostBuild;
             Description = "通过这个任务使用 Virbox 加密服务商提供的服务加密应用程序！Use this task to encrypt your application with the service provided by Virbox!";
         }
-        
+
         //output = E:\Unity\Temp\AppLocation\AppTwo\AppTheSameNameIsOk.exe
         public override async Task<string> RunAsync(string output)
         {
@@ -77,8 +78,10 @@ namespace zFramework.AppBuilder
                 };
                 program.OnStandardOutputReceived += OnStandardOutputReceived;
                 await program.StartAsync();
-                Debug.Log("Virbox 加密完成！");
-                return $"{root}/{foldNameOrigin}_protected";
+                Debug.Log("Virbox 加密任务执行完毕，请检查是否有报错！");
+                var result = $"{root}/{foldNameOrigin}_protected";
+                ReportResult(result, () => "Virbox 加密任务输出目录：");
+                return result;
             }
             catch (Exception)
             {

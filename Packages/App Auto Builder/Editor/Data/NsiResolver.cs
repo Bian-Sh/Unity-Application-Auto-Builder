@@ -27,6 +27,7 @@ namespace zFramework.Extension
         public string[] languages = new[] { "SimpChinese" };
         [Header("快捷方式：")]
         public Shotcut[] shotcuts;
+        public string OutputFileLocation { get; private set; }
 
 
         public string Process(string output)
@@ -45,7 +46,7 @@ namespace zFramework.Extension
             appInstallDir = appInstallDir.Replace("/", "\\");
             var outputFileName = this.outputFileName.Replace("${PRODUCT_VERSION}", appVersion);
 
-            var outputfile = Path.Combine(installerOutputPath, outputFileName);
+            OutputFileLocation = Path.Combine(installerOutputPath, outputFileName);
             // .nsi 文件存放在与输出目录同级目录下
             string nsiFilePath = Path.Combine(installerOutputPath, $"{outputFileName[..^4]}.nsi");
 
@@ -55,7 +56,7 @@ namespace zFramework.Extension
                       .Replace("#Version#", appVersion)
                       .Replace("#ExeName#", exeName)
                       .Replace("#InstallDir#", appInstallDir)
-                      .Replace("#OutputFileName#", outputfile)
+                      .Replace("#OutputFileName#", OutputFileLocation)
                       .Replace("#Publisher#", publisher)
                       .Replace("#WebSite#", website)
                       .Replace("#BrandingText#", brandingText)
