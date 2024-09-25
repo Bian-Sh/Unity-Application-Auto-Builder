@@ -1,4 +1,3 @@
-using GluonGui.WorkspaceWindow.Views.WorkspaceExplorer.Explorer;
 using System;
 using System.Diagnostics;
 using System.IO;
