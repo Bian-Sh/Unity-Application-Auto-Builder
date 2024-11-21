@@ -1,3 +1,4 @@
+using System;
 using System.Reflection;
 using System.Threading.Tasks;
 using UnityEditor;
@@ -19,7 +20,7 @@ namespace zFramework.AppBuilder
         public MonoScript script;
         // 常规方法,比如 GameManager 中有 Process  方法  ，填入即可
         public string function;
-        // 字段 args 是传入方法的参数,仅支持传入一个 string 
+        // 字段 args 是传入方法的参数,仅支持传入一个 string 或其他基础类型（请执行确认他们是否可以被 Convert.ChangeType 转换）
         public string args;
         SceneSetup[] previourScenes;
 
@@ -32,43 +33,60 @@ The FunctionExecute Task is a highly useful tool that allows you to modify data 
 
         public override Task<string> RunAsync(string output)
         {
-            Debug.Log($"{nameof(FunctionExecuteTask)}: Run Function");
-            //如果用户指定场景，我们加载场景中的函数
-            // 否则，我们加载的函数必须认定用户执行的是静态函数，如果函数不存在则会报错，但不会影响构建
-            if (scene)
+            try
             {
-                // Save current open Scene into previours scene list , for re-open
-                previourScenes = EditorSceneManager.GetSceneManagerSetup();
-                // Open the scene
-                var loadedScene = EditorSceneManager.OpenScene(AssetDatabase.GetAssetPath(scene));
-                // Get the type of the class
-                var type = script.GetClass();
-                // Get the method
-                var flag = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
-                var method = type.GetMethod(function, flag);
-                // Get the instance of the class
-                var instance = Object.FindObjectOfType(type);
-                // Invoke the method
-                method.Invoke(instance, new object[] { this.args });
-                EditorSceneManager.SaveScene(loadedScene);
-                // Re-open previours scenes
-                EditorSceneManager.RestoreSceneManagerSetup(previourScenes);
-            }
-            else
-            {
-                var type = script.GetClass();
-                var flag = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
-                var method = type.GetMethod(function, flag);
-                if (method != null)
+                Debug.Log($"{nameof(FunctionExecuteTask)}: Run Function");
+                //如果用户指定场景，我们加载场景中的函数
+                // 否则，我们加载的函数必须认定用户执行的是静态函数，如果函数不存在则会报错，但不会影响构建
+                if (scene)
                 {
-                    method.Invoke(null, new object[] { this.args });
+                    // Save current open Scene into previours scene list , for re-open
+                    previourScenes = EditorSceneManager.GetSceneManagerSetup();
+                    // Open the scene
+                    var loadedScene = EditorSceneManager.OpenScene(AssetDatabase.GetAssetPath(scene));
+                    // Get the type of the class
+                    var type = script.GetClass();
+                    // Get the method
+                    var flag = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+                    var method = type.GetMethod(function, flag);
+                    // Get the instance of the class
+                    var instance = Object.FindObjectOfType(type);
+                    // 强转 参数类型 为 method 的参数类型
+                    if (method == null)
+                    {
+                        Debug.LogError($"{nameof(FunctionExecuteTask)}: {function} 方法不存在!");
+                        return Task.FromResult(string.Empty);
+                    }
+                    var argtype = method.GetParameters()[0].ParameterType;
+                    var arg = Convert.ChangeType(this.args, argtype);
+
+                    // Invoke the method
+                    method.Invoke(instance, new object[] { arg });
+                    EditorSceneManager.SaveScene(loadedScene);
+                    // Re-open previours scenes
+                    EditorSceneManager.RestoreSceneManagerSetup(previourScenes);
                 }
                 else
                 {
-                    Debug.LogError($"{nameof(FunctionExecuteTask)}: 如果不指定场景，{function} 必须为静态方法!");
+                    var type = script.GetClass();
+                    var flag = BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic;
+                    var method = type.GetMethod(function, flag);
+                    if (method != null)
+                    {
+                        method.Invoke(null, new object[] { this.args });
+                    }
+                    else
+                    {
+                        Debug.LogError($"{nameof(FunctionExecuteTask)}: 如果不指定场景，{function} 必须为静态方法!");
+                    }
                 }
+                return Task.FromResult(string.Empty);
             }
-            return Task.FromResult(string.Empty);
+            catch (Exception e)
+            {
+                Debug.LogError($"{nameof(FunctionExecuteTask)}: 执行方法失败! \n{e}");
+                return Task.FromResult(string.Empty);
+            }
         }
     }
 }
