@@ -4,9 +4,6 @@ using System.IO;
 using UnityEditorInternal;
 using UnityEngine.UIElements;
 using UnityEditor.Presets;
-using static UnityEngine.GraphicsBuffer;
-using System;
-using System.Runtime.InteropServices;
 
 namespace zFramework.AppBuilder
 {
@@ -85,52 +82,61 @@ Unity one-click packaging tool, suitable for scenarios where the packaging scene
             // draw the settings GUI
             using var changescope = new EditorGUI.ChangeCheckScope();
             serializedObject.Update();
+
             var virboxExePath = serializedObject.FindProperty("virboxExePath");
+            var virboxLMExePath = serializedObject.FindProperty("virboxLMExePath");
+            var devloperId = serializedObject.FindProperty("devloperId");
+            var virboxPsw = serializedObject.FindProperty("virboxPsw");
+
             var nsisExePath = serializedObject.FindProperty("nsisExePath");
             var shouldKeepNsisFile = serializedObject.FindProperty("shouldKeepNsisFile");
 
-            GUILayout.Label("Virbox Exe Path:");
-            using (var horizontal = new EditorGUILayout.HorizontalScope())
-            {
-                virboxExePath.stringValue = GUILayout.TextField(virboxExePath.stringValue);
-                // button for open file dialog
-                if (GUILayout.Button(openfiledilog, GUILayout.Width(30)))
-                {
-                    var path = EditorUtility.OpenFilePanel("请选择 Virbox 命令行程序", "", "exe");
-                    if (!string.IsNullOrEmpty(path))
-                    {
-                        virboxExePath.stringValue = path;
-                    }
-                }
-            }
-            GUILayout.Label("NSIS Exe Path:");
-            using (var horizontal = new EditorGUILayout.HorizontalScope())
-            {
-                nsisExePath.stringValue = GUILayout.TextField(nsisExePath.stringValue);
-                // button for open file dialog
-                if (GUILayout.Button(openfiledilog, GUILayout.Width(30)))
-                {
-                    var path = EditorUtility.OpenFilePanel("请选择 NSIS 命令行程序", "", "exe");
-                    if (!string.IsNullOrEmpty(path))
-                    {
-                        nsisExePath.stringValue = path;
-                    }
-                }
-            }
-            //  toggle right here for shouldKeepNsisFile
-            shouldKeepNsisFile.boolValue = GUILayout.Toggle(shouldKeepNsisFile.boolValue, "Should Keep NSIS File");
+            FilePathWithOpenDialog(virboxExePath, "请选择 Virbox 命令行程序");
+            FilePathWithOpenDialog(virboxLMExePath, "请选择 Virbox (LM )命令行程序");
 
+            // 如果 lm path 有效，则显示 devloperId 和 virboxPsw
+            if (!string.IsNullOrEmpty(virboxLMExePath.stringValue))
+            {
+                using var box = new EditorGUILayout.VerticalScope(GUI.skin.box);
+                EditorGUILayout.PropertyField(devloperId);
+                settings.VirboxPsw = EditorGUILayout.PasswordField("Virbox Password", settings.VirboxPsw);
+            }
+
+            // NSIS
+            FilePathWithOpenDialog(nsisExePath, "请选择 NSIS 命令行程序");
+
+            //  toggle right here for shouldKeepNsisFile
+            EditorGUILayout.PropertyField(shouldKeepNsisFile);
 
             if (changescope.changed)
             {
                 serializedObject.ApplyModifiedProperties();
+                Undo.RecordObject(Settings, "App Auto Builder Settings");
                 SaveSettings();
             }
+
             // ABOUT
             GUILayout.BeginVertical(GUI.skin.box);
             GUILayout.Label(aboutMessage, EditorStyles.wordWrappedLabel);
             if (GUILayout.Button("More info: " + repositoryLink, EditorStyles.linkLabel)) Application.OpenURL(repositoryLink);
             GUILayout.EndVertical();
+        }
+
+        private void FilePathWithOpenDialog(SerializedProperty property, string title)
+        {
+            using (var horizontal = new EditorGUILayout.HorizontalScope())
+            {
+                EditorGUILayout.PropertyField(property);
+                // button for open file dialog
+                if (GUILayout.Button(openfiledilog, GUILayout.Width(30)))
+                {
+                    var path = EditorUtility.OpenFilePanel(title, "", "exe");
+                    if (!string.IsNullOrEmpty(path))
+                    {
+                        property.stringValue = path;
+                    }
+                }
+            }
         }
 
         public override void OnFooterBarGUI()
