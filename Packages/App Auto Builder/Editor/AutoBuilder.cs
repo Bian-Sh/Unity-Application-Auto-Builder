@@ -222,6 +222,7 @@ namespace zFramework.AppBuilder
                     var file = $"{dir}/{profile.productName}{ext}";
                     PlayerSettings.productName = profile.productName;
                     PlayerSettings.bundleVersion = profile.productVersion;
+                    EditorPrefs.SetBool("BuildByAutoBuilder", true);
                     var report = BuildPipeline.BuildPlayer(scenes.ToArray(), file, buildTarget, options_unity);
                     Debug.Log($"{profile.productName} 打包结果：{report.summary.result}");
                 }
@@ -270,6 +271,13 @@ namespace zFramework.AppBuilder
         [PostProcessBuild]
         static async void OnPostProcessBuild(BuildTarget target, string output)
         {
+            var buildByAutoBuilder = EditorPrefs.GetBool("BuildByAutoBuilder");
+            if (!buildByAutoBuilder)
+            {
+                return;
+            }
+            // reset the flag
+            EditorPrefs.DeleteKey("BuildByAutoBuilder");            
             config ??= AutoBuildConfiguration.LoadOrCreate();
             var productname = Path.GetFileNameWithoutExtension(output);
             var profile = config.profiles.FirstOrDefault(v => v.productName == productname && v.platform == (Platform)target && v.isBuild);
