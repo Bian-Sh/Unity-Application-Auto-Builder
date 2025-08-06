@@ -52,6 +52,7 @@ namespace zFramework.AppBuilder
             var foldNameOrigin = fileInfo.Directory.Name;
             var root = fileInfo.Directory.Parent.FullName;
             var newOutput = $"{root}/{foldNameOrigin}_protected";
+            var newOutputFile = $"{newOutput}/{fileInfo.Name}";
 
             try
             {
@@ -115,7 +116,7 @@ namespace zFramework.AppBuilder
                 await program.StartAsync();
                 Debug.Log("Virbox 加密任务执行完毕，请检查是否有报错！");
                 ReportResult(newOutput, () => "Virbox 加密任务输出目录：");
-                return BuildTaskResult.Successful(newOutput); // 返回新的输出路径给下一个任务使用
+                return BuildTaskResult.Successful(newOutputFile); // 返回新的输出路径给下一个任务使用
             }
             //当消息包含"请先插入 Virbox 控制锁" 时，不捕获，向外输出,避免意外触发打 exe 包流程
             catch (Exception e) when (!e.Message.Contains("请先插入 Virbox 控制锁"))
