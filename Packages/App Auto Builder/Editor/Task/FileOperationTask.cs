@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using UnityEditor;
 using UnityEngine;
 
 namespace zFramework.AppBuilder
@@ -68,7 +69,7 @@ ProductName 由 Path.GetFileNameWithoutExtension(output) 获取。
             try
             {
                 var resolvedSourcePath = ResolvePath(operation.sourcePath, output);
-                
+
                 switch (operation.type)
                 {
                     case FileOperationType.Copy:
@@ -78,13 +79,13 @@ ProductName 由 Path.GetFileNameWithoutExtension(output) 获取。
                         await DeleteOperation(resolvedSourcePath);
                         break;
                     case FileOperationType.Move:
-                        await MoveOperation(resolvedSourcePath, ResolvePath(operation.destinationPath, output));
+                        MoveOperation(resolvedSourcePath, ResolvePath(operation.destinationPath, output));
                         break;
                     case FileOperationType.Rename:
                         await RenameOperation(resolvedSourcePath, operation.newName);
                         break;
                 }
-                
+
                 Debug.Log($"{nameof(FileOperationTask)}: {operation.type} 操作完成 - {resolvedSourcePath}");
             }
             catch (Exception e)
@@ -172,32 +173,16 @@ ProductName 由 Path.GetFileNameWithoutExtension(output) 获取。
             });
         }
 
-        private async Task MoveOperation(string sourcePath, string destinationPath)
+        private void MoveOperation(string sourcePath, string destinationPath)
         {
-            await Task.Run(() =>
+            var parentDir = Path.GetDirectoryName(destinationPath);
+            if (!string.IsNullOrEmpty(parentDir) && !Directory.Exists(parentDir))
             {
-                if (File.Exists(sourcePath))
-                {
-                    // 移动文件
-                    var destDir = Path.GetDirectoryName(destinationPath);
-                    if (!string.IsNullOrEmpty(destDir) && !Directory.Exists(destDir))
-                    {
-                        Directory.CreateDirectory(destDir);
-                    }
-                    File.Move(sourcePath, destinationPath);
-                    ReportResult(destinationPath, () => $"{nameof(FileOperationTask)}: 文件移动完成 - ");
-                }
-                else if (Directory.Exists(sourcePath))
-                {
-                    // 移动目录
-                    Directory.Move(sourcePath, destinationPath);
-                    ReportResult(destinationPath, () => $"{nameof(FileOperationTask)}: 目录移动完成 - ");
-                }
-                else
-                {
-                    throw new FileNotFoundException($"源路径不存在: {sourcePath}");
-                }
-            });
+                Directory.CreateDirectory(parentDir);
+            }
+
+            FileUtil.MoveFileOrDirectory(sourcePath, destinationPath);
+            ReportResult(destinationPath, () => $"{nameof(FileOperationTask)}: 目录移动完成 - ");
         }
 
         private async Task RenameOperation(string sourcePath, string newName)
@@ -260,7 +245,7 @@ ProductName 由 Path.GetFileNameWithoutExtension(output) 获取。
             for (int i = 0; i < operations.Length; i++)
             {
                 var operation = operations[i];
-                
+
                 // 检查源路径
                 if (string.IsNullOrEmpty(operation.sourcePath))
                 {
