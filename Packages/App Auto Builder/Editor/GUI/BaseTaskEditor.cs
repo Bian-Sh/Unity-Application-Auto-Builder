@@ -43,7 +43,12 @@ namespace zFramework.AppBuilder
         {
             if (!string.IsNullOrEmpty(task.Description))
             {
-                EditorGUILayout.HelpBox(task.Description, MessageType.Info);
+                GUILayout.Space(10);
+                GUIStyle helpBoxStyle = new(EditorStyles.helpBox)
+                {
+                    fontSize = 12 
+                };
+                EditorGUILayout.LabelField(task.Description,  helpBoxStyle);
             }
         }
 

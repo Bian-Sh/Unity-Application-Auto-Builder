@@ -21,6 +21,7 @@ namespace zFramework.AppBuilder
 2. 在args中传入Unity打包后的输出路径（例如打包为exe时的路径：D:/Builds/MyGame.exe）
 3. 配置sourcePath为项目内路径（如Assets/SomeFolder/SomeFile.txt）
 
+
 执行预期：
 任务运行时，对应打包输出目录下的文件（如D:/Builds/MyGame_Data/SomeFolder/SomeFile.txt）
 将按操作类型（删除/复制等）执行相应处理，其他操作同理。
@@ -28,6 +29,11 @@ namespace zFramework.AppBuilder
 路径约定：
 当路径以'Assets/'开头时，会自动替换为ProductName_Data目录路径。
 ProductName 由 Path.GetFileNameWithoutExtension(output) 获取。
+
+注意事项：
+1. 确保操作的源路径和目标路径正确无误。
+2. 确保有足够的权限执行文件操作。
+3. 确保文件未被其他程序占用，否则可能导致操作失败。
 ";
         }
 
