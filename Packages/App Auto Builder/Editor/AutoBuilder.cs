@@ -178,11 +178,20 @@ namespace zFramework.AppBuilder
                             // 支持将上一个任务的结果传递给下一个任务
                             try
                             {
-                                args = await item.RunAsync(args);
+                                var result = await item.RunAsync(args);
+                                if (!result.Success)
+                                {
+                                    EditorUtility.DisplayDialog("任务执行错误", "任务执行中发生错误，更多详情查看控制台。", "确定");
+                                    isBuilding = false;
+                                    return;
+                                }
+                                args = result.Output; // 使用任务输出的新路径
                             }
                             catch (Exception)
                             {
-                                break;
+                                EditorUtility.DisplayDialog("任务执行错误", "任务执行中发生错误，更多详情查看控制台。", "确定");
+                                isBuilding = false;
+                                return;
                             }
                         }
                         else
@@ -303,10 +312,17 @@ namespace zFramework.AppBuilder
                         Debug.Log($"执行<color=green>{item.name}</color> PostBuild 任务");
                         try
                         {
-                            param = await item.RunAsync(param);
+                            var result = await item.RunAsync(param);
+                            if (!result.Success)
+                            {
+                                EditorUtility.DisplayDialog("任务执行错误", "任务执行中发生错误，更多详情查看控制台。", "确定");
+                                break;
+                            }
+                            param = result.Output; // 使用任务输出的新路径
                         }
                         catch (Exception)
                         {
+                            EditorUtility.DisplayDialog("任务执行错误", "任务执行中发生错误，更多详情查看控制台。", "确定");
                             break;
                         }
                     }

@@ -16,7 +16,7 @@ namespace zFramework.AppBuilder
         {
             Description = "在打包前后执行程序方便处理一些事务，应该会有用吧";
         }
-        public async override Task<string> RunAsync(string output)
+        public async override Task<BuildTaskResult> RunAsync(string output)
         {
             if (!string.IsNullOrEmpty(exePath))
             {
@@ -27,7 +27,7 @@ namespace zFramework.AppBuilder
                     await Task.Run(process.WaitForExit);
                 }
             }
-            return string.Empty;
+            return BuildTaskResult.Successful(output);
         }
     }
 }

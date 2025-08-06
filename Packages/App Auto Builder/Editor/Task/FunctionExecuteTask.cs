@@ -31,7 +31,7 @@ The FunctionExecute Task is a highly useful tool that allows you to modify data 
         }
 
 
-        public override Task<string> RunAsync(string output)
+        public override Task<BuildTaskResult> RunAsync(string output)
         {
             try
             {
@@ -55,7 +55,7 @@ The FunctionExecute Task is a highly useful tool that allows you to modify data 
                     if (method == null)
                     {
                         Debug.LogError($"{nameof(FunctionExecuteTask)}: {function} 方法不存在!");
-                        return Task.FromResult(string.Empty);
+                        return Task.FromResult(BuildTaskResult.Failed(output, $"方法 {function} 不存在"));
                     }
                     var argtype = method.GetParameters()[0].ParameterType;
                     var arg = Convert.ChangeType(this.args, argtype);
@@ -78,14 +78,15 @@ The FunctionExecute Task is a highly useful tool that allows you to modify data 
                     else
                     {
                         Debug.LogError($"{nameof(FunctionExecuteTask)}: 如果不指定场景，{function} 必须为静态方法!");
+                        return Task.FromResult(BuildTaskResult.Failed(output, $"如果不指定场景，{function} 必须为静态方法"));
                     }
                 }
-                return Task.FromResult(string.Empty);
+                return Task.FromResult(BuildTaskResult.Successful(output));
             }
             catch (Exception e)
             {
                 Debug.LogError($"{nameof(FunctionExecuteTask)}: 执行方法失败! \n{e}");
-                return Task.FromResult(string.Empty);
+                return Task.FromResult(BuildTaskResult.Failed(output, e.Message));
             }
         }
     }

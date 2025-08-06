@@ -37,14 +37,14 @@ ProductName 由 Path.GetFileNameWithoutExtension(output) 获取。
 ";
         }
 
-        public override async Task<string> RunAsync(string output)
+        public override async Task<BuildTaskResult> RunAsync(string output)
         {
             try
             {
                 if (operations == null || operations.Length == 0)
                 {
                     Debug.LogWarning($"{nameof(FileOperationTask)}: 没有配置任何操作");
-                    return output;
+                    return BuildTaskResult.Successful(output);
                 }
 
                 foreach (var operation in operations)
@@ -52,7 +52,7 @@ ProductName 由 Path.GetFileNameWithoutExtension(output) 获取。
                     await ExecuteOperation(operation, output);
                 }
 
-                return output;
+                return BuildTaskResult.Successful(output);
             }
             catch (Exception e)
             {
@@ -108,6 +108,14 @@ ProductName 由 Path.GetFileNameWithoutExtension(output) 获取。
             var outputDir = Path.GetDirectoryName(output);
             if (string.IsNullOrEmpty(outputDir))
                 outputDir = Directory.GetCurrentDirectory();
+
+            // 如果路径以 "Assets/" 开头，替换为 ProductName_Data 目录
+            var productName = Path.GetFileNameWithoutExtension(output);
+            if (path.StartsWith("Assets/", StringComparison.OrdinalIgnoreCase))
+            {
+                outputDir = Path.Combine(outputDir, $"{productName}_Data");
+                path = path["Assets/".Length..]; // 去掉 "Assets/" 前缀
+            }
 
             // 拼接相对路径
             return Path.Combine(outputDir, path);

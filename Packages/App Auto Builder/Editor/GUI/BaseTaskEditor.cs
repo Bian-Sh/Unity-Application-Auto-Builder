@@ -1,5 +1,6 @@
 using UnityEditor;
 using UnityEngine;
+using System;
 namespace zFramework.AppBuilder
 {
     [CustomEditor(typeof(BaseTask), true)]
@@ -27,10 +28,21 @@ namespace zFramework.AppBuilder
                 {
                     async void InternalTask()
                     {
-                        var output = await task.RunAsync(arg);
-                        if (!string.IsNullOrEmpty(output))
+                        try
                         {
-                            Debug.Log(output);
+                            var result = await task.RunAsync(arg);
+                            if (result.Success && !string.IsNullOrEmpty(result.Output))
+                            {
+                                Debug.Log(result.Output);
+                            }
+                            else if (!result.Success)
+                            {
+                                Debug.LogError($"任务执行失败！{(string.IsNullOrEmpty(result.ErrorMessage) ? "" : $" 错误：{result.ErrorMessage}")}");
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            Debug.LogError($"任务执行错误: {e.Message}");
                         }
                     }
                     InternalTask();

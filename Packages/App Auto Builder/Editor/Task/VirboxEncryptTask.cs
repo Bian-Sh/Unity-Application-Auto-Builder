@@ -30,10 +30,10 @@ namespace zFramework.AppBuilder
         /// <summary>
         ///  执行 Virbox 加密任务
         /// </summary>
-        /// <param name="args"> 打包出来的 App 文件路径 </param>
+        /// <param name="output"> 打包出来的 App 文件路径 </param>
         /// <returns></returns>
         /// <exception cref="ArgumentNullException"></exception>
-        public override async Task<string> RunAsync(string args)
+        public override async Task<BuildTaskResult> RunAsync(string output)
         {
             var exePath = string.IsNullOrEmpty(productId) ? Settings.virboxExePath : Settings.virboxLMExePath;
             if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
@@ -42,16 +42,16 @@ namespace zFramework.AppBuilder
                 ShowSettings();
                 throw new ArgumentNullException($"Virbox 控制台程序路径不可用，请检查！\n{exePath}");
             }
-            if (string.IsNullOrEmpty(args) || !File.Exists(args))
+            if (string.IsNullOrEmpty(output) || !File.Exists(output))
             {
                 throw new ArgumentNullException("exe file is null or empty or file is not exists!");
             }
-            var applicationName = Path.GetFileNameWithoutExtension(args);
+            var applicationName = Path.GetFileNameWithoutExtension(output);
 
-            var fileInfo = new FileInfo(args);
+            var fileInfo = new FileInfo(output);
             var foldNameOrigin = fileInfo.Directory.Name;
             var root = fileInfo.Directory.Parent.FullName;
-            var output = $"{root}/{foldNameOrigin}_protected";
+            var newOutput = $"{root}/{foldNameOrigin}_protected";
 
             try
             {
@@ -78,8 +78,8 @@ namespace zFramework.AppBuilder
                 }
                 else
                 {
-                    ModifyVirboxConfiguration(exePath, sspFiles, applicationName, output);
-                    combinedArgs = $"\"{fileInfo.DirectoryName}\" -c local -p {Settings.VirboxPin} -o \"{output}\" -x \"{sspFiles}\"";
+                    ModifyVirboxConfiguration(exePath, sspFiles, applicationName, newOutput);
+                    combinedArgs = $"\"{fileInfo.DirectoryName}\" -c local -p {Settings.VirboxPin} -o \"{newOutput}\" -x \"{sspFiles}\"";
                 }
 
                 // run virbox encrypt
@@ -114,10 +114,10 @@ namespace zFramework.AppBuilder
                 program.OnStandardOutputReceived += OnStandardOutputReceived;
                 await program.StartAsync();
                 Debug.Log("Virbox 加密任务执行完毕，请检查是否有报错！");
-                ReportResult(output, () => "Virbox 加密任务输出目录：");
-                return output;
+                ReportResult(newOutput, () => "Virbox 加密任务输出目录：");
+                return BuildTaskResult.Successful(newOutput); // 返回新的输出路径给下一个任务使用
             }
-            //当消息包含“请先插入 Virbox 控制锁” 时，不捕获，向外输出,避免意外触发打 exe 包流程
+            //当消息包含"请先插入 Virbox 控制锁" 时，不捕获，向外输出,避免意外触发打 exe 包流程
             catch (Exception e) when (!e.Message.Contains("请先插入 Virbox 控制锁"))
             {
                 throw;

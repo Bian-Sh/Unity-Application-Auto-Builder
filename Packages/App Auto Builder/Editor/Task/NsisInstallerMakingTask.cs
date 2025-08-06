@@ -33,19 +33,15 @@ namespace zFramework.Extension
             taskType = TaskType.PostBuild;
             Description = "使用 makensis.exe 和 .nsi 文件生成 Windows 系统下的 exe 安装程序。Generate a Windows executable installer using makensis.exe and .nsi files.";
         }
-        public override async Task<string> RunAsync(string output)
+        public override async Task<BuildTaskResult> RunAsync(string output)
         {
             var exePath = AppAutoBuilderSettingProvider.Settings.nsisExePath;
             if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
             {
                 throw new ArgumentNullException("makensis.exe 路径不可用，请检查！");
             }
-            // 如果是文件，就使用其 Parent 文件夹
-            if (File.Exists(output))
-            {
-                output = Path.GetDirectoryName(output);
-            }
-            if (string.IsNullOrEmpty(output) || !Directory.Exists(output))
+            var appdir = Path.GetDirectoryName(output);
+            if (string.IsNullOrEmpty(appdir) || !Directory.Exists(appdir))
             {
                 throw new ArgumentNullException("output path is null or empty");
             }
@@ -59,7 +55,7 @@ namespace zFramework.Extension
                     {
                         continue;
                     }
-                    var nsifile = nsiResolver.Process(output);
+                    var nsifile = nsiResolver.Process(appdir);
 
                     currentInstallerName = Path.GetFileName(nsiResolver.outputFileName.Replace("${PRODUCT_VERSION}", nsiResolver.appVersion));
                     progressid = Progress.Start($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ");
@@ -67,7 +63,7 @@ namespace zFramework.Extension
                     // 读取 output 目录下的所有文件相对路径并存放到 files 中，以便于编译时计算进度
                     files.Clear();
                     count = 0;
-                    var root = new DirectoryInfo(output);
+                    var root = new DirectoryInfo(appdir);
                     foreach (var file in root.GetFiles("*", SearchOption.AllDirectories))
                     {
                         files.Add(file.FullName.Replace(root.FullName, string.Empty).TrimStart('\\'));
@@ -107,7 +103,7 @@ namespace zFramework.Extension
                         File.Delete(nsifile);
                     }
                 }
-                return string.Empty; // 无需反馈
+                return BuildTaskResult.Successful(output); // 任务成功完成，不修改输出路径
             }
             catch (Exception)
             {
@@ -140,7 +136,7 @@ namespace zFramework.Extension
                 var step = (float)currentResolver / totalResolver;
                 var progress = (float)count / files.Count * step;
                 var globalProgress = Mathf.Clamp01((float)(currentResolver - 1) / totalResolver + progress);
-                EditorUtility.DisplayProgressBar($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ", $"({count }/{files.Count} )完成压缩：{fileName} ", globalProgress);
+                EditorUtility.DisplayProgressBar($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ", $"({count}/{files.Count} )完成压缩：{fileName} ", globalProgress);
                 //ProgressBarWindow.ShowProgressBar($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ", $"({count }/{files.Count} )完成压缩：{fileName} ", globalProgress);
                 Progress.Report(progressid, (float)count / files.Count, $"({count}/{files.Count} )完成压缩：{fileName} ");
             }
