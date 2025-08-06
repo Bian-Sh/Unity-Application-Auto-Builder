@@ -30,6 +30,14 @@ namespace zFramework.AppBuilder
                     {
                         try
                         {
+                            // validate task
+                            var validatePassed = task.Validate();
+                            if (!validatePassed)
+                            {
+                                Debug.LogError("任务验证失败，请检查任务配置，更多信息见控制台！");
+                                return;
+                            }
+
                             var result = await task.RunAsync(arg);
                             if (result.Success && !string.IsNullOrEmpty(result.Output))
                             {
@@ -58,9 +66,9 @@ namespace zFramework.AppBuilder
                 GUILayout.Space(10);
                 GUIStyle helpBoxStyle = new(EditorStyles.helpBox)
                 {
-                    fontSize = 12 
+                    fontSize = 12
                 };
-                EditorGUILayout.LabelField(task.Description,  helpBoxStyle);
+                EditorGUILayout.LabelField(task.Description, helpBoxStyle);
             }
         }
 
