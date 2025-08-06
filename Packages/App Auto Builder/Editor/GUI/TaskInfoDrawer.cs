@@ -30,11 +30,11 @@ namespace zFramework.AppBuilder
                 var taskobj = task.objectReferenceValue;
                 if (taskobj != null)
                 {
-                    EditorGUIUtility.PingObject(taskobj);
-                    Selection.activeObject = taskobj;
 #if UNITY_2020_2_OR_NEWER 
-                    //open the properties panel of the task's scriptable object.
-                    EditorApplication.ExecuteMenuItem("Assets/Properties...");
+                    //open the properties panel of the task's scriptable object without selecting it.
+                    EditorUtility.OpenPropertyEditor(taskobj);
+#else
+                    EditorGUIUtility.PingObject(taskobj);
 #endif
                 }
             }
