@@ -207,11 +207,7 @@ namespace zFramework.AppBuilder
                     return false;
                 }
             }
-            // 检查是否有插入 Virbox 控制锁（未插入时提示会包含：B000000D ），是否有登录 Virbox 账号（未登录时提示会包含：A0000011）
-
-
-
-
+            //todo: 检查是否有插入 Virbox 控制锁（未插入时提示会包含：B000000D ），是否有登录 Virbox 账号（未登录时提示会包含：A0000011）
             return true;
         }
 
