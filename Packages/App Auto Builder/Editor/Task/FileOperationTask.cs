@@ -13,8 +13,22 @@ namespace zFramework.AppBuilder
         public FileOperationProfile[] operations; // array of file operations
         private void OnEnable()
         {
-            Description = @"执行文件操作任务，如复制、删除、移动、重命名等
-约定：当路径使用 'Assets/' 开头时，会被 ProductName_Data 路径代替";
+            Description = @"用于执行文件操作任务，包括复制、删除、移动、重命名等功能。
+
+测试说明：
+若需测试功能（如删除sourcePath指向的文件或目录），可按以下方式操作：
+1. 预先创建对应的测试文件和目录结构
+2. 在args中传入Unity打包后的输出路径（例如打包为exe时的路径：D:/Builds/MyGame.exe）
+3. 配置sourcePath为项目内路径（如Assets/SomeFolder/SomeFile.txt）
+
+执行预期：
+任务运行时，对应打包输出目录下的文件（如D:/Builds/MyGame_Data/SomeFolder/SomeFile.txt）
+将按操作类型（删除/复制等）执行相应处理，其他操作同理。
+
+路径约定：
+当路径以'Assets/'开头时，会自动替换为ProductName_Data目录路径。
+ProductName 由 Path.GetFileNameWithoutExtension(output) 获取。
+";
         }
 
         public override async Task<string> RunAsync(string output)

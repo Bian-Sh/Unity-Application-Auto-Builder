@@ -5,6 +5,10 @@ using UnityEditor;
 using UnityEngine;
 namespace zFramework.AppBuilder
 {
+    // 约定：
+    // 1. output 是 Unity 打包回调返回的路径
+    // 2. output 使用 ref 使得修改成为可能，但是目前仅在 VirbalTask 中修正了一次
+    // 3. 一般来说，通过 Path.GetFileNameWithoutExtension(output)  可以获取到 ProductName
     public class BaseTask : ScriptableObject
     {
         public TaskType taskType;
