@@ -46,7 +46,7 @@ namespace zFramework.AppBuilder
         {
             serializedObject.Update();
             InitProperties();
-            var rect_settings = new Rect(position.width-18, 2, 20, 20);
+            var rect_settings = new Rect(position.width - 18, 2, 20, 20);
 
             // draw settings entry on the right of this window
             var icon = EditorGUIUtility.IconContent("d_Settings");
@@ -176,7 +176,14 @@ namespace zFramework.AppBuilder
                         {
                             Debug.Log($"执行 <color=green>{item.name}</color> PreBuild 任务");
                             // 支持将上一个任务的结果传递给下一个任务
-                            args = await item.RunAsync(args);
+                            try
+                            {
+                                args = await item.RunAsync(args);
+                            }
+                            catch (Exception)
+                            {
+                                break;
+                            }
                         }
                         else
                         {
@@ -222,6 +229,7 @@ namespace zFramework.AppBuilder
                     var file = $"{dir}/{profile.productName}{ext}";
                     PlayerSettings.productName = profile.productName;
                     PlayerSettings.bundleVersion = profile.productVersion;
+                    // 记录一个是否打包的标记
                     EditorPrefs.SetBool("BuildByAutoBuilder", true);
                     var report = BuildPipeline.BuildPlayer(scenes.ToArray(), file, buildTarget, options_unity);
                     Debug.Log($"{profile.productName} 打包结果：{report.summary.result}");
@@ -277,7 +285,8 @@ namespace zFramework.AppBuilder
                 return;
             }
             // reset the flag
-            EditorPrefs.DeleteKey("BuildByAutoBuilder");            
+            EditorPrefs.DeleteKey("BuildByAutoBuilder");
+
             config ??= AutoBuildConfiguration.LoadOrCreate();
             var productname = Path.GetFileNameWithoutExtension(output);
             var profile = config.profiles.FirstOrDefault(v => v.productName == productname && v.platform == (Platform)target && v.isBuild);
@@ -292,7 +301,14 @@ namespace zFramework.AppBuilder
                     if (item)
                     {
                         Debug.Log($"执行<color=green>{item.name}</color> PostBuild 任务");
-                        param = await item.RunAsync(param);
+                        try
+                        {
+                            param = await item.RunAsync(param);
+                        }
+                        catch (Exception)
+                        {
+                            break;
+                        }
                     }
                     else
                     {
