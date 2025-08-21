@@ -5,8 +5,17 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2025-08-21
 
-## [2.2.0] - 2024-09-25
+### New Feature
+
+* 实现了对打包的 exe 进行闪屏剔除的任务，方便在打包后，加密前移除闪屏（支持2022.3 及以上版本）
+
+### Fixed
+
+* 对部分数据类型实现了序列化回调接口，在序列化前对部分字符串的两端空格进行移除，避免引发逻辑异常
+
+## [2.2.0] - 2025-08-7
 
 ### New Feature
 
@@ -17,8 +26,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 ### Fixed
 
 * 解决非本插件触发的打包也会触发插件 Task 的异常
-
-
 
 ## [2.1.0] - 2024-09-25
 
