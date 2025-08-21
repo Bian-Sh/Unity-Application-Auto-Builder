@@ -72,10 +72,11 @@ namespace zFramework.Extension
             StringBuilder sb_add = new(), sb_remove = new();
             foreach (var shotcut in shotcuts)
             {
+                var alignStartMenuFolder = startMenuFolder.Replace("/", "\\").Replace(@"\", "\\");
                 string args = string.IsNullOrEmpty(shotcut.args) ? string.Empty : $" \"{shotcut.args}\"";
-                sb_add.AppendLine($"CreateShortCut \"$SMPROGRAMS\\{startMenuFolder}\\{shotcut.name}.lnk\" \"$INSTDIR\\{exeName}\"{args}");
+                sb_add.AppendLine($"CreateShortCut \"$SMPROGRAMS\\{alignStartMenuFolder}\\{shotcut.name}.lnk\" \"$INSTDIR\\{exeName}\"{args}");
                 sb_add.AppendLine($"CreateShortCut \"$DESKTOP\\{shotcut.name}.lnk\" \"$INSTDIR\\{exeName}\"{args}");
-                sb_remove.AppendLine($"Delete \"$SMPROGRAMS\\{startMenuFolder}\\{shotcut.name}.lnk\"");
+                sb_remove.AppendLine($"Delete \"$SMPROGRAMS\\{alignStartMenuFolder}\\{shotcut.name}.lnk\"");
                 sb_remove.AppendLine($"Delete \"$DESKTOP\\{shotcut.name}.lnk\"");
             }
             nsiBuilder.Replace("#AddedShotcut#", sb_add.ToString())
@@ -260,10 +261,21 @@ FunctionEnd
         }
 
         [Serializable]
-        public class Shotcut
+        public class Shotcut:ISerializationCallbackReceiver
         {
             public string name;
             public string args; // 根据上下文自动获取、 自动拼接到目标程序后面
+
+            void ISerializationCallbackReceiver.OnAfterDeserialize()
+            {
+            }
+
+            void ISerializationCallbackReceiver.OnBeforeSerialize()
+            {
+                // 避免用户输入空格导致后续路径拼接等出现问题
+                name = name?.Trim();
+                args = args?.Trim();
+            }
         }
         #endregion
     }
