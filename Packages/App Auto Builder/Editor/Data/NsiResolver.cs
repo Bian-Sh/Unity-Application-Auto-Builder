@@ -6,7 +6,7 @@ using UnityEngine;
 namespace zFramework.Extension
 {
     [Serializable]
-    public class NsiResolver
+    public class NsiResolver:ISerializationCallbackReceiver
     {
         [Header("是否启用？")]
         public bool enable;
@@ -111,6 +111,36 @@ namespace zFramework.Extension
             nsiBuilder.Replace("#Components#", sb.ToString());
             File.WriteAllText(nsiFilePath, nsiBuilder.ToString(), Encoding.GetEncoding("GB2312"));
             return nsiFilePath;
+        }
+
+        void ISerializationCallbackReceiver.OnBeforeSerialize()
+        {
+            // 序列化之前，休整那些首尾一定不可以存在空格的数据
+            appName = appName?.Trim();
+            appVersion = appVersion?.Trim();
+            startMenuFolder = startMenuFolder?.Trim();
+            appInstallDir = appInstallDir?.Trim();
+            outputFileName = outputFileName?.Trim();
+            installerOutputPath = installerOutputPath?.Trim();
+            publisher = publisher?.Trim();
+            website = website?.Trim();
+            brandingText = brandingText?.Trim();
+            // 组件
+            foreach (var component in components)
+            {
+                component.filePath = component.filePath?.Trim();
+                component.args = component.args?.Trim();
+            }
+            // 快捷方式
+            foreach (var shotcut in shotcuts)
+            {
+                shotcut.name = shotcut.name?.Trim();
+                shotcut.args = shotcut.args?.Trim();
+            }
+        }
+
+        void ISerializationCallbackReceiver.OnAfterDeserialize()
+        {
         }
 
         readonly string DefaultNsisScript = @"; 该脚本使用 App Auto Builder 生成

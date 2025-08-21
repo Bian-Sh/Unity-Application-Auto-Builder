@@ -29,7 +29,7 @@ namespace zFramework.AppBuilder
 
         void ISerializationCallbackReceiver.OnBeforeSerialize()
         {
-            // 序列化之前，休整哪些首尾一定不可以存在空格的数据
+            // 序列化之前，休整那些首尾一定不可以存在空格的数据
             productName = productName?.Trim();
             saveLocation = saveLocation?.Trim();
             productVersion = productVersion?.Trim();
