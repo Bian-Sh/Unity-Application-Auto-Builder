@@ -54,6 +54,10 @@ Support removing the splash screen after packaging through SplashRemove Task (su
 | ![](doc/VirboxTask.png)                                                               | ![](doc/NsisTask.png)                                                                                                                                            |
 |通过这个 Task 实现对打包的应用加密| 通过这个 Task，对打包后的应用进行安装包的制作   |
 |With this Task, the packaged application is encrypted|With this Task, the packaged application is made into an installation package|
+|File Operation Task| Splash Remove Task  |
+| ![](doc/FileOperationTask.png)                                                               | ![](doc/SplashRemoveTask.png)                                                                                                                                            |
+|通过这个 Task 实现对打包的程序文件进行删改（支持 standalone）| 通过这个 Task，对打包后的应用进行闪屏移除操作   |
+| With this Task, you can delete and modify packaged program files (supports standalone) | With this Task, perform splash screen removal operations on packaged applications |
 
 
 # 使用（Usage）：
