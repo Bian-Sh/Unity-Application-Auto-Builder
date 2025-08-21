@@ -19,7 +19,7 @@ MonoBehaviour:
     appName: "Auto Builder NSIS \u793A\u4F8B\u5E94\u7528"
     appVersion: 1.1.0
     startMenuFolder: Auto Builder Example
-    appInstallDir: For Auto Builder\v${PRODUCT_VERSION}\NSIS Example
+    appInstallDir: For Auto Builder\v${PRODUCT_VERSION}\NSIS Example1
     outputFileName: autobulder-nsistaskdemo-v${PRODUCT_VERSION}-setup.exe
     installerOutputPath: E:\Unity\Temp\AppLocation
     publisher: Bian Shanghai
@@ -41,7 +41,7 @@ MonoBehaviour:
     appName: "Auto Builder NSIS \u793A\u4F8B\u5E94\u75282"
     appVersion: 1.1.2
     startMenuFolder: Auto Builder Example2
-    appInstallDir: For Auto Builder\v${PRODUCT_VERSION}\NSIS Example
+    appInstallDir: For Auto Builder\v${PRODUCT_VERSION}\NSIS Example2
     outputFileName: autobulder-nsistaskdemo2-v${PRODUCT_VERSION}-setup.exe
     installerOutputPath: E:\Unity\Temp\AppLocation
     publisher: Bian Shanghai
