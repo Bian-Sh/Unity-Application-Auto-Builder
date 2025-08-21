@@ -55,7 +55,14 @@ namespace zFramework.AppBuilder
             string globalgamemanagersPath = Path.Combine(dataDir, "globalgamemanagers");
             var (Success, Reason) = await RemoveUnitySplashAsync(globalgamemanagersPath);
             var result = new BuildTaskResult(Success, output, Success ? null : Reason);
-            Debug.Log(Success ? "Unity Splash Screen 移除成功" : $"Unity Splash Screen 移除失败: {Reason}");
+            if (Success)
+            {
+                 Debug.Log($"默认闪屏移除成功, {Reason}");
+            }
+            else
+            {
+                 Debug.LogError($"移除闪屏时发生错误: {Reason}");
+            }
             return result;
         }
 
