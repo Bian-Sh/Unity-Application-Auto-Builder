@@ -55,6 +55,7 @@ namespace zFramework.AppBuilder
             string globalgamemanagersPath = Path.Combine(dataDir, "globalgamemanagers");
             var (Success, Reason) = await RemoveUnitySplashAsync(globalgamemanagersPath);
             var result = new BuildTaskResult(Success, output, Success ? null : Reason);
+            Debug.Log(Success ? "Unity Splash Screen 移除成功" : $"Unity Splash Screen 移除失败: {Reason}");
             return result;
         }
 
@@ -218,8 +219,12 @@ namespace zFramework.AppBuilder
                 bool hasProVersion = buildSettingsBase["hasPROVersion"].AsBool;
                 bool showUnityLogo = playerSettingsBase["m_ShowUnitySplashLogo"].AsBool;
 
-                if (hasProVersion && !showUnityLogo)
-                    return (false, "Unity Splash Screen 已经被移除过了");
+                if (hasProVersion && !showUnityLogo) 
+                {
+                    // 如果已经是 Pro 版本并且隐藏了 Unity Logo，则无需再次处理，直接返回成功
+                    Debug.Log("Unity Splash Screen 已经被移除过了");
+                    return (true, string.Empty); 
+                }
 
                 // 获取并清除 splash screen logos
                 AssetTypeValueField splashScreenLogos = playerSettingsBase["m_SplashScreenLogos.Array"];
