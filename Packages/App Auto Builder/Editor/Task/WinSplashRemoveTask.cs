@@ -25,6 +25,7 @@ namespace zFramework.AppBuilder
 1. 仅在 Windows 平台下生效, 并且 PlayerSettings 中的 Draw Mode 为 All Sequential
 2. 其他平台请参考本案例自行实现
 3. 如果有使用 Virbox Encrypt Task，请确保此任务优先于 Virbox Encrypt Task 执行，priority 值越小优先级越高
+4. 支持 Unity 2022.3 及以上版本
 ";
         }
 
