@@ -52,6 +52,8 @@ MonoBehaviour:
       task: {fileID: 11400000, guid: e5eae1986018db445a3c2b5cc19a3755, type: 2}
     - enabled: 1
       task: {fileID: 11400000, guid: 4271ba57f5c38f344a6c51aeeed12e96, type: 2}
+    - enabled: 1
+      task: {fileID: 11400000, guid: 67a82e89b8c48f64ea67d869985b00d3, type: 2}
   - productName: AppTheSameNameIsOk
     isBuild: 0
     platform: 13
