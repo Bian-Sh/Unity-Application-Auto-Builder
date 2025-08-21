@@ -34,6 +34,11 @@
 5. 支持通过 Nsis Task 对打包后的应用进行安装包制作；
 	 Support making installation package for the packaged application through Nsis Task
 
+6. 支持通过 FileOperation Task 对打包后的文件进行删除，重命名等操作
+Support performing operations such as deletion and renaming on packaged files through FileOperation Task
+
+7. 支持通过 SplashRemove Task 对打包后的闪屏进行移除（支持windows ，unity 2022.3 or new）
+Support removing the splash screen after packaging through SplashRemove Task (supports Windows, Unity 2022.3 or newer)
 
 
 # 界面（Interface）：
