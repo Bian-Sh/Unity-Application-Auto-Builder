@@ -13,8 +13,7 @@ MonoBehaviour:
   m_Name: Nsis Installer Making Task
   m_EditorClassIdentifier: 
   taskType: 1
-  priority: 1
-  exePath: C:\Program Files (x86)\NSIS\makensis.exe
+  priority: 2
   nsiResolvers:
   - enable: 1
     appName: "Auto Builder NSIS \u793A\u4F8B\u5E94\u7528"
@@ -22,6 +21,7 @@ MonoBehaviour:
     startMenuFolder: Auto Builder Example
     appInstallDir: For Auto Builder\v${PRODUCT_VERSION}\NSIS Example
     outputFileName: autobulder-nsistaskdemo-v${PRODUCT_VERSION}-setup.exe
+    installerOutputPath: E:\Unity\Temp\AppLocation
     publisher: Bian Shanghai
     website: https://www.jianshu.com/u/275cca6e5f17
     brandingText: Bian Shanghai
@@ -37,16 +37,13 @@ MonoBehaviour:
       args: 
     - name: "Auto Builder NSIS \u793A\u4F8B\u5E94\u7528(\u5E26\u81EA\u5B9A\u4E49\u53C2\u6570)"
       args: --Port=8888
-    keepNsiFile: 0
-    compileNsiFile: 1
-    nsiOutputPath: E:\Unity\Temp\AppLocation
-    installerOutputPath: E:\Unity\Temp\AppLocation
   - enable: 1
     appName: "Auto Builder NSIS \u793A\u4F8B\u5E94\u75282"
     appVersion: 1.1.2
     startMenuFolder: Auto Builder Example2
     appInstallDir: For Auto Builder\v${PRODUCT_VERSION}\NSIS Example
     outputFileName: autobulder-nsistaskdemo2-v${PRODUCT_VERSION}-setup.exe
+    installerOutputPath: E:\Unity\Temp\AppLocation
     publisher: Bian Shanghai
     website: https://www.jianshu.com/u/275cca6e5f17
     brandingText: Bian Shanghai
@@ -62,7 +59,3 @@ MonoBehaviour:
       args: 
     - name: "Auto Builder NSIS \u793A\u4F8B\u5E94\u75282(\u5E26\u81EA\u5B9A\u4E49\u53C2\u6570)"
       args: --Port=8888
-    keepNsiFile: 0
-    compileNsiFile: 1
-    nsiOutputPath: E:\Unity\Temp\AppLocation
-    installerOutputPath: E:\Unity\Temp\AppLocation
