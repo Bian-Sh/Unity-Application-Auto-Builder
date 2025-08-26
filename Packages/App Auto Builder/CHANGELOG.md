@@ -5,6 +5,20 @@ All notable changes to this package will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
+## [2.3.1] - 2025-08-26
+
+### Update
+
+* 编辑器下 PreBuild Task 不再绘制 args 输入窗口
+
+### New Feature
+
+* 实现了在打包前替换 icon 的任务    
+
+### Fixed
+
+* 修复了 NSI 文件解析时获取 exe 有几率出错的异常，现在直接从外部传入
+
 ## [2.3.0] - 2025-08-21
 
 ### New Feature
