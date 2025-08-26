@@ -30,9 +30,9 @@ namespace zFramework.Extension
         public string OutputFileLocation { get; private set; }
 
 
-        public string Process(string output)
+        // 约定：传入的参数一定是一个 exe 文件路径
+        public string Process(string exeEntry) 
         {
-            string exeEntry = Directory.GetFiles(output, "*.exe").Where(x => !x.StartsWith("UnityCrashHandler")).FirstOrDefault();
             if (string.IsNullOrEmpty(exeEntry))
             {
                 throw new FileNotFoundException("Can not find exe file in output folder");
@@ -45,7 +45,7 @@ namespace zFramework.Extension
 
             appInstallDir = appInstallDir.Replace("/", "\\");
             var outputFileName = this.outputFileName.Replace("${PRODUCT_VERSION}", appVersion);
-
+            var exeDir = Path.GetDirectoryName(exeEntry);
             OutputFileLocation = Path.Combine(installerOutputPath, outputFileName);
             // .nsi 文件存放在与输出目录同级目录下
             string nsiFilePath = Path.Combine(installerOutputPath, $"{outputFileName[..^4]}.nsi");
@@ -60,7 +60,7 @@ namespace zFramework.Extension
                       .Replace("#Publisher#", publisher)
                       .Replace("#WebSite#", website)
                       .Replace("#BrandingText#", brandingText)
-                      .Replace("#OriginDir#", output)
+                      .Replace("#OriginDir#", exeDir)
                       .Replace("#StartMenuDir#", startMenuFolder)
                       .Replace("#OutputDir#", installerOutputPath); // 生成的安装程序输出目录
 

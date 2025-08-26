@@ -18,9 +18,9 @@ namespace zFramework.AppBuilder
         /// <summary>
         /// 执行任务
         /// </summary>
-        /// <param name="output">输入的输出路径</param>
+        /// <param name="filePath">上一个任务的输出（一般是文件路径，比如 win 平台下是 .exe 文件路径）</param>
         /// <returns>任务执行结果，包含成功状态和可能修改的输出路径</returns>
-        public virtual Task<BuildTaskResult> RunAsync(string output)
+        public virtual Task<BuildTaskResult> RunAsync(string filePath)
         {
             throw new System.NotImplementedException();
         }

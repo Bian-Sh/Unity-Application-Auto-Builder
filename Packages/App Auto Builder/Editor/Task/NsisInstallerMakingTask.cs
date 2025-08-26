@@ -33,14 +33,14 @@ namespace zFramework.Extension
             taskType = TaskType.PostBuild;
             Description = "使用 makensis.exe 和 .nsi 文件生成 Windows 系统下的 exe 安装程序。Generate a Windows executable installer using makensis.exe and .nsi files.";
         }
-        public override async Task<BuildTaskResult> RunAsync(string output)
+        public override async Task<BuildTaskResult> RunAsync(string filePath)
         {
             var exePath = AppAutoBuilderSettingProvider.Settings.nsisExePath;
             if (string.IsNullOrEmpty(exePath) || !File.Exists(exePath))
             {
                 throw new ArgumentNullException("makensis.exe 路径不可用，请检查！");
             }
-            var appdir = Path.GetDirectoryName(output);
+            var appdir = Path.GetDirectoryName(filePath);
             if (string.IsNullOrEmpty(appdir) || !Directory.Exists(appdir))
             {
                 throw new ArgumentNullException("output path is null or empty");
@@ -55,7 +55,7 @@ namespace zFramework.Extension
                     {
                         continue;
                     }
-                    var nsifile = nsiResolver.Process(appdir);
+                    var nsifile = nsiResolver.Process(filePath);
 
                     currentInstallerName = Path.GetFileName(nsiResolver.outputFileName.Replace("${PRODUCT_VERSION}", nsiResolver.appVersion));
                     progressid = Progress.Start($"({currentResolver}/{totalResolver})编译安装包 {currentInstallerName} ");
@@ -103,7 +103,7 @@ namespace zFramework.Extension
                         File.Delete(nsifile);
                     }
                 }
-                return BuildTaskResult.Successful(output); // 任务成功完成，不修改输出路径
+                return BuildTaskResult.Successful(filePath); // 任务成功完成，不修改输出路径
             }
             catch (Exception)
             {
