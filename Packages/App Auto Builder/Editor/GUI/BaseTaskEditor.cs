@@ -17,10 +17,17 @@ namespace zFramework.AppBuilder
         public override void OnInspectorGUI()
         {
             DrawDefaultInspector();
-            using (var verticalScope = new EditorGUILayout.VerticalScope(EditorStyles.selectionRect))
+            using (var verticalScope = new EditorGUILayout.VerticalScope(EditorStyles.selectionRect, GUILayout.Width(EditorGUIUtility.currentViewWidth)))
             {
-                arg = EditorGUILayout.TextField("Args", arg);
-                GUILayout.Space(4);
+                if (task.taskType == TaskType.PostBuild)
+                {
+                    arg = EditorGUILayout.TextField("Args", arg);
+                    GUILayout.Space(4);
+                }
+                else
+                {
+                    arg = string.Empty;
+                }
                 var buttonRect = GUILayoutUtility.GetRect(GUIContent, GUI.skin.button, GUILayout.Height(24), GUILayout.Width(120));
                 buttonRect.x = (EditorGUIUtility.currentViewWidth - buttonRect.width) / 2;
 
