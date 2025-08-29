@@ -52,7 +52,7 @@ namespace zFramework.AppBuilder
                             }
                             else if (!result.Success)
                             {
-                                Debug.LogError($"任务执行失败！{(string.IsNullOrEmpty(result.ErrorMessage) ? "" : $" 错误：{result.ErrorMessage}")}");
+                                Debug.LogError($"任务执行失败！{(string.IsNullOrEmpty(result.Message) ? "" : $" 错误：{result.Message}")}");
                             }
                         }
                         catch (Exception e)

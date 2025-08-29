@@ -18,13 +18,13 @@ namespace zFramework.AppBuilder
         /// <summary>
         /// 可选的错误消息
         /// </summary>
-        public string ErrorMessage { get; set; }
+        public string Message { get; set; }
 
-        public BuildTaskResult(bool success, string output, string errorMessage = null)
+        public BuildTaskResult(bool success, string output, string message = null)
         {
             Success = success;
             Output = output;
-            ErrorMessage = errorMessage;
+            Message = message;
         }
 
         /// <summary>
@@ -35,6 +35,6 @@ namespace zFramework.AppBuilder
         /// <summary>
         /// 创建失败的结果
         /// </summary>
-        public static BuildTaskResult Failed(string output, string errorMessage = null) => new BuildTaskResult(false, output, errorMessage);
+        public static BuildTaskResult Failed(string output, string message = null) => new BuildTaskResult(false, output, message);
     }
 }
