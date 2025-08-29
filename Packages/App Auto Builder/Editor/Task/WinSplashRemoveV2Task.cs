@@ -57,7 +57,9 @@ namespace zFramework.AppBuilder
             string exeDir = Path.GetDirectoryName(exeFile);
             string dataDir = Path.Combine(exeDir, $"{Path.GetFileNameWithoutExtension(exeFile)}_Data");
             string globalgamemanagersPath = Path.Combine(dataDir, "globalgamemanagers");
+            Debug.Log($"[WinSplashRemoveV2Task] globalgamemanagers 路径: {globalgamemanagersPath}");
             var (Success, Reason) = await Task.Run(() => RemoveUnitySplash(globalgamemanagersPath));
+            Debug.Log($"[WinSplashRemoveV2Task] RunAsync 结束，Success: {Success}, Reason: {Reason}");
             var result = new BuildTaskResult(Success, exeFile, Success ? null : Reason);
             return result;
         }
@@ -73,77 +75,100 @@ namespace zFramework.AppBuilder
             try
             {
                 if (string.IsNullOrWhiteSpace(globalgamemanagersPath))
+                {
+                    Debug.LogError("[WinSplashRemoveV2Task] 文件路径不能为空");
                     return (false, "文件路径不能为空");
-
+                }
                 if (!File.Exists(globalgamemanagersPath))
+                {
+                    Debug.LogError($"[WinSplashRemoveV2Task] 文件不存在: {globalgamemanagersPath}");
                     return (false, $"文件不存在: {globalgamemanagersPath}");
-
+                }
                 string fileName = Path.GetFileName(globalgamemanagersPath);
                 if (!fileName.Contains("globalgamemanagers"))
+                {
+                    Debug.LogError("[WinSplashRemoveV2Task] 不支持的文件类型，仅支持 globalgamemanagers 文件");
                     return (false, "不支持的文件类型，仅支持 globalgamemanagers 文件");
-
+                }
                 // tpkFile 路径获取逻辑保持原样
                 var scriptPath = new System.Diagnostics.StackTrace(true).GetFrame(0).GetFileName();
                 var pluginsDir = Path.Combine(Path.GetDirectoryName(scriptPath), "../../Binaries");
                 var tpkFile = Path.Combine(pluginsDir, "classdata.tpk");
+                Debug.Log($"[WinSplashRemoveV2Task] tpkFile 路径: {tpkFile}");
                 if (!File.Exists(tpkFile))
                 {
+                    Debug.LogError($"[WinSplashRemoveV2Task] TPK 文件不存在: {tpkFile}");
                     return (false, $"TPK 文件不存在: {tpkFile}");
                 }
-
                 string backupFile = $"{globalgamemanagersPath}.bak";
                 if (!File.Exists(backupFile))
                 {
                     try
                     {
                         File.Copy(globalgamemanagersPath, backupFile, false);
+                        Debug.Log($"[WinSplashRemoveV2Task] 备份文件已创建: {backupFile}");
                     }
                     catch (Exception ex)
                     {
+                        Debug.LogError($"[WinSplashRemoveV2Task] 创建备份文件失败: {ex.Message}");
                         return (false, $"创建备份文件失败: {ex.Message}");
                     }
                 }
-
                 string tempFile = $"{globalgamemanagersPath}.temp";
                 temporaryFiles.Add(tempFile);
                 try
                 {
                     File.Copy(globalgamemanagersPath, tempFile, true);
+                    Debug.Log($"[WinSplashRemoveV2Task] 临时文件已创建: {tempFile}");
                 }
                 catch (Exception ex)
                 {
+                    Debug.LogError($"[WinSplashRemoveV2Task] 创建临时文件失败: {ex.Message}");
                     return (false, $"创建临时文件失败: {ex.Message}");
                 }
-
                 AssetsManager assetsManager = new();
                 AssetsFileInstance assetFileInstance = null;
                 try
                 {
                     assetsManager.LoadClassPackage(path: tpkFile);
+                    Debug.Log("[WinSplashRemoveV2Task] ClassPackage 加载完成");
                     assetFileInstance = assetsManager.LoadAssetsFile(tempFile, true);
                     if (assetFileInstance == null)
+                    {
+                        Debug.LogError("[WinSplashRemoveV2Task] 加载资源文件失败");
                         return (false, "加载资源文件失败");
+                    }
+                    Debug.Log("[WinSplashRemoveV2Task] AssetsFile 加载完成");
                     assetsManager.LoadClassDatabaseFromPackage(assetFileInstance.file.Metadata.UnityVersion);
+                    Debug.Log($"[WinSplashRemoveV2Task] ClassDatabase 加载完成，UnityVersion: {assetFileInstance.file.Metadata.UnityVersion}");
                     var result = ProcessSplashRemoval(assetsManager, assetFileInstance);
                     if (!result.Success)
+                    {
+                        Debug.LogError($"[WinSplashRemoveV2Task] ProcessSplashRemoval 失败: {result.Reason}");
                         return result;
+                    }
                     using (AssetsFileWriter writer = new(globalgamemanagersPath))
                     {
                         assetFileInstance.file.Write(writer);
+                        Debug.Log($"[WinSplashRemoveV2Task] 写入 globalgamemanagers 完成: {globalgamemanagersPath}");
                     }
+                    Debug.Log($"[WinSplashRemoveV2Task] RemoveUnitySplash 成功: {result.Reason}");
                     return (true, result.Reason);
                 }
                 catch (Exception ex)
                 {
+                    Debug.LogError($"[WinSplashRemoveV2Task] 处理资源文件时出错: {ex.Message}");
                     return (false, $"处理资源文件时出错: {ex.Message}");
                 }
                 finally
                 {
                     assetsManager?.UnloadAll(true);
+                    Debug.Log("[WinSplashRemoveV2Task] 资源卸载完成");
                 }
             }
             catch (Exception ex)
             {
+                Debug.LogError($"[WinSplashRemoveV2Task] 未预期的错误: {ex.Message}");
                 return (false, $"未预期的错误: {ex.Message}");
             }
             finally
@@ -153,7 +178,10 @@ namespace zFramework.AppBuilder
                     try
                     {
                         if (File.Exists(tempFile))
+                        {
                             File.Delete(tempFile);
+                            Debug.Log($"[WinSplashRemoveV2Task] 临时文件已删除: {tempFile}");
+                        }
                     }
                     catch { }
                 }
@@ -165,16 +193,23 @@ namespace zFramework.AppBuilder
         /// </summary>
         private static (bool Success, string Reason) ProcessSplashRemoval(AssetsManager assetsManager, AssetsFileInstance assetFileInstance)
         {
+            Debug.Log("[WinSplashRemoveV2Task] ProcessSplashRemoval 开始");
             try
             {
                 AssetsFile assetFile = assetFileInstance.file;
                 List<AssetFileInfo> buildSettingsInfos = assetFile.GetAssetsOfType(AssetClassID.BuildSettings);
                 if (buildSettingsInfos == null || buildSettingsInfos.Count == 0)
+                {
+                    Debug.LogError("[WinSplashRemoveV2Task] 找不到 BuildSettings 数据");
                     return (false, "找不到 BuildSettings 数据");
+                }
                 AssetTypeValueField buildSettingsBase = assetsManager.GetBaseField(assetFileInstance, buildSettingsInfos[0]);
                 List<AssetFileInfo> playerSettingsInfos = assetFile.GetAssetsOfType(AssetClassID.PlayerSettings);
                 if (playerSettingsInfos == null || playerSettingsInfos.Count == 0)
+                {
+                    Debug.LogError("[WinSplashRemoveV2Task] 找不到 PlayerSettings 数据");
                     return (false, "找不到 PlayerSettings 数据");
+                }
                 AssetTypeValueField playerSettingsBase;
                 try
                 {
@@ -182,17 +217,25 @@ namespace zFramework.AppBuilder
                 }
                 catch (Exception ex)
                 {
+                    Debug.LogError("Type-Tree数据库与资产不匹配，请尝试从: https://nightly.link/AssetRipper/Tpk/workflows/type_tree_tpk/master/uncompressed_file.zip 手动下载替换 classdata.tpk, 或者更换 Unity 版本");
+                    Debug.LogError($"[WinSplashRemoveV2Task] 无法获取 PlayerSettings 字段: {ex.Message}");
                     return (false, $"无法获取 PlayerSettings 字段: {ex.Message}。可能不支持当前的 Unity 版本");
                 }
                 bool hasProVersion = buildSettingsBase["hasPROVersion"].AsBool;
                 bool showUnityLogo = playerSettingsBase["m_ShowUnitySplashLogo"].AsBool;
+                Debug.Log($"[WinSplashRemoveV2Task] hasProVersion: {hasProVersion}, showUnityLogo: {showUnityLogo}");
                 if (hasProVersion && !showUnityLogo)
+                {
+                    Debug.Log("[WinSplashRemoveV2Task] Unity 启动画面已经被移除过了");
                     return (true, "Unity 启动画面已经被移除过了");
+                }
                 AssetTypeValueField splashScreenLogos = playerSettingsBase["m_SplashScreenLogos.Array"];
                 int totalSplashScreens = splashScreenLogos.Count();
+                Debug.Log($"[WinSplashRemoveV2Task] SplashScreen 总数: {totalSplashScreens}");
                 if (totalSplashScreens > 0)
                 {
                     splashScreenLogos.Children.RemoveAt(0);
+                    Debug.Log("[WinSplashRemoveV2Task] 已移除首个 SplashScreen");
                 }
                 buildSettingsBase["hasPROVersion"].AsBool = true;
                 playerSettingsBase["m_ShowUnitySplashLogo"].AsBool = false;
@@ -201,10 +244,12 @@ namespace zFramework.AppBuilder
                 string message = totalSplashScreens > 0
                     ? $"成功移除首个（共 {totalSplashScreens} 个）Splash Screen 并设置为 Pro 版本"
                     : "已设置为 Pro 版本并隐藏 Unity Logo";
+                Debug.Log($"[WinSplashRemoveV2Task] ProcessSplashRemoval 成功: {message}");
                 return (true, message);
             }
             catch (Exception ex)
             {
+                Debug.LogError($"[WinSplashRemoveV2Task] 移除 Splash Screen 时发生错误: {ex.Message}");
                 return (false, $"移除 Splash Screen 时发生错误: {ex.Message}");
             }
         }
