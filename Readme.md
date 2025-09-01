@@ -32,33 +32,31 @@
      Support encrypting the packaged application through Virbox Task
 
 5. 支持通过 Nsis Task 对打包后的应用进行安装包制作；
-	 Support making installation package for the packaged application through Nsis Task
+     Support making installation package for the packaged application through Nsis Task
 
 6. 支持通过 FileOperation Task 对打包后的文件进行删除，重命名等操作
-Support performing operations such as deletion and renaming on packaged files through FileOperation Task
+   Support performing operations such as deletion and renaming on packaged files through FileOperation Task
 
 7. 支持通过 SplashRemove Task 对打包后的闪屏进行移除（支持windows ，unity 2022.3 or new）
-Support removing the splash screen after packaging through SplashRemove Task (supports Windows, Unity 2022.3 or newer)
-
+   Support removing the splash screen after packaging through SplashRemove Task (supports Windows, Unity 2022.3 or newer)
 
 # 界面（Interface）：
 
 ![](doc/interface.png)
 
-| Function Execute Task                                                                      | Run Process Task                                                                                                                                                       |
-| ------------------------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| ![](doc/FuncExecuteTask.png)                                                               | ![](doc/RunProcessTask.png)                                                                                                                                            |
-| 通过这个 task ，你可以写逻辑在打包前后对 scene 内的任意数据进行修改                                                   | 通过这个 Task，你可以在构建前、后运行一个应用程序，可以设置是否卡主线程，方便控制打包流程                                                                                                                        |
-| With this task, you can write logic to modify any data in the scene before and after build | With this Task, you can run an application before and after the build, and you can set whether to block the main thread to facilitate the control of the build process |
-| Virbox Task| Nsis Task |
-| ![](doc/VirboxTask.png)                                                               | ![](doc/NsisTask.png)                                                                                                                                            |
-|通过这个 Task 实现对打包的应用加密| 通过这个 Task，对打包后的应用进行安装包的制作   |
-|With this Task, the packaged application is encrypted|With this Task, the packaged application is made into an installation package|
-|File Operation Task| Splash Remove Task  |
-| ![](doc/FileOperationTask.png)                                                               | ![](doc/SplashRemoveTask.png)                                                                                                                                            |
-|通过这个 Task 实现对打包的程序文件进行删改（支持 standalone）| 通过这个 Task，对打包后的应用进行闪屏移除操作   |
-| With this Task, you can delete and modify packaged program files (supports standalone) | With this Task, perform splash screen removal operations on packaged applications |
-
+| Function Execute Task                                                                      | Run Process Task                                                                                                                                                                                                                                              |
+| ------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| ![](doc/FuncExecuteTask.png)                                                               | ![](doc/RunProcessTask.png)                                                                                                                                                                                                                                   |
+| 通过这个 task ，你可以写逻辑在打包前后对 scene 内的任意数据进行修改                                                   | 通过这个 Task，你可以在构建前、后运行一个应用程序，可以设置是否卡主线程，方便控制打包流程                                                                                                                                                                                                               |
+| With this task, you can write logic to modify any data in the scene before and after build | With this Task, you can run an application before and after the build, and you can set whether to block the main thread to facilitate the control of the build process                                                                                        |
+| Virbox Task                                                                                | Nsis Task                                                                                                                                                                                                                                                     |
+| ![](doc/VirboxTask.png)                                                                    | ![](doc/NsisTask.png)                                                                                                                                                                                                                                         |
+| 通过这个 Task 实现对打包的应用加密                                                                       | 通过这个 Task，对打包后的应用进行安装包的制作                                                                                                                                                                                                                                     |
+| With this Task, the packaged application is encrypted                                      | With this Task, the packaged application is made into an installation package                                                                                                                                                                                 |
+| File Operation Task                                                                        | Splash Remove Task                                                                                                                                                                                                                                            |
+| ![](doc/FileOperationTask.png)                                                             | ![](doc/SplashRemoveTask.png)                                                                                                                                                                                                                                 |
+| 通过这个 Task 实现对打包的程序文件进行删改（支持 standalone）                                                    | 通过这个 Task，对打包后的应用进行闪屏移除操作；如果同一个编辑器开发的应用存在有的能够移除，有的不能，请尝试更新 classdata.tpk ，这是 TypeTree 数据缺失导致。                                                                                                                                                                 |
+| With this Task, you can delete and modify packaged program files (supports standalone)     | With this Task, perform splash screen removal operations on packaged applications;If an application developed by the same editor exists, some can be removed and some cannot, please try to update classdata.tpk, as this is caused by missing TypeTree data. |
 
 # 使用（Usage）：
 
