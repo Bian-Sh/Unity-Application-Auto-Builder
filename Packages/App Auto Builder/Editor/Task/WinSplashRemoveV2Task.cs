@@ -7,7 +7,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using UnityEditor;
 using UnityEngine;
-using zFramework.AppBuilder.Utils;
 
 namespace zFramework.AppBuilder
 {
@@ -253,8 +252,5 @@ namespace zFramework.AppBuilder
                 return (false, $"移除 Splash Screen 时发生错误: {ex.Message}");
             }
         }
-
-
-
     }
 }
